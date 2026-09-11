@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChainTable>
+<Row>
+<Id>1001</Id><DevNote>Fever Chain</DevNote><Name>900311</Name><Desc>900312</Desc><Icon>-1</Icon><Action>Fever</Action><Chain2Values>20</Chain2Values><Chain3Values>50</Chain3Values><Chain4Values>80</Chain4Values><Chain5Values>100</Chain5Values></Row>
+<Row>
+<Id>1002</Id><DevNote>DamageUp Chain</DevNote><Name>900321</Name><Desc>900322</Desc><Icon>-1</Icon><Action>DamageUp</Action><Chain2Values>2</Chain2Values><Chain3Values>4</Chain3Values><Chain4Values>7</Chain4Values><Chain5Values>10</Chain5Values></Row>
+</ChainTable>

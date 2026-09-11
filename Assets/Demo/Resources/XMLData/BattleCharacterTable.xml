@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BattleCharacterTable>
+<Row>
+<Id>101</Id><DevNote>Player Character</DevNote><Name>10001</Name><MaxHp>50</MaxHp><CharacterFaceIconName>-1</CharacterFaceIconName><DefaultSpriteNames>-1</DefaultSpriteNames><AttackSpriteName>-1</AttackSpriteName><HitSpriteNames>-1</HitSpriteNames><SpecialSkillSpriteName>-1</SpecialSkillSpriteName><SetSkillElements>1001, 1002, 1003</SetSkillElements><GetSkills>2, 2, 2</GetSkills><SpecialSkillId>1004</SpecialSkillId><SpecialSkillGauge>10</SpecialSkillGauge><ChainId>1001</ChainId></Row>
+<Row>
+<Id>102</Id><DevNote>AI Rival</DevNote><Name>10002</Name><MaxHp>50</MaxHp><CharacterFaceIconName>-1</CharacterFaceIconName><DefaultSpriteNames>-1</DefaultSpriteNames><AttackSpriteName>-1</AttackSpriteName><HitSpriteNames>-1</HitSpriteNames><SpecialSkillSpriteName>-1</SpecialSkillSpriteName><SetSkillElements>2001, 2002, 2003</SetSkillElements><GetSkills>2, 2, 2</GetSkills><SpecialSkillId>2004</SpecialSkillId><SpecialSkillGauge>10</SpecialSkillGauge><ChainId>1002</ChainId></Row>
+</BattleCharacterTable>

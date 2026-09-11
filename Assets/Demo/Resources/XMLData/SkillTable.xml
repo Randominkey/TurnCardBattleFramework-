@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SkillTable>
+<Row>
+<Id>1001</Id><DevNote>[Player] Rock</DevNote><Name>900111</Name><Desc>900112</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Rock</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>1002</Id><DevNote>[Player] Scissors</DevNote><Name>900121</Name><Desc>900122</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Scissors</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>1003</Id><DevNote>[Player] Paper</DevNote><Name>900131</Name><Desc>900132</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Paper</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>1004</Id><DevNote>[Player] Special Skill</DevNote><Name>900211</Name><Desc>900212</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Require</Element><Action>LoseHeal</Action><ActionValues>-1</ActionValues></Row>
+<Row>
+<Id>2001</Id><DevNote>[AI] Rock</DevNote><Name>900111</Name><Desc>900112</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Rock</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>2002</Id><DevNote>[AI] Scissors</DevNote><Name>900121</Name><Desc>900122</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Scissors</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>2003</Id><DevNote>[AI] Paper</DevNote><Name>900131</Name><Desc>900132</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Paper</Element><Action>Attack</Action><ActionValues>2, 1</ActionValues></Row>
+<Row>
+<Id>2004</Id><DevNote>[AI] Special Skill</DevNote><Name>900221</Name><Desc>900222</Desc><Icon>-1</Icon><CastCutScene>-1</CastCutScene><SucceseCutScene>-1</SucceseCutScene><Element>Require</Element><Action>Berserk</Action><ActionValues>2, 1, 1</ActionValues></Row>
+</SkillTable>

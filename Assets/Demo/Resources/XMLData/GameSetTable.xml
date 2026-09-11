@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameSetTable>
+<Row>
+<MaxCards>8</MaxCards><PositionAAxis>-200</PositionAAxis><PositionBAxis>-100</PositionBAxis><PositionCAxis>0</PositionCAxis><PositionDAxis>100</PositionDAxis><PositionEAxis>200</PositionEAxis><DisableTextSkipSecond>0.1</DisableTextSkipSecond><RoundDrawCards>1</RoundDrawCards><EndGameDamageValue>1.5</EndGameDamageValue><MaxFeverGauge>100</MaxFeverGauge><LimitFeverRound>3</LimitFeverRound><FeverStackDamage>5, 15, 30</FeverStackDamage></Row>
+</GameSetTable>

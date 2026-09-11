@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BattleHpTable>
+<Row>
+<Id>1001</Id><DevNote>MaxHp = 50</DevNote><MaxHp>50</MaxHp><SpriteDownHp>50, 30, 15</SpriteDownHp></Row>
+</BattleHpTable>

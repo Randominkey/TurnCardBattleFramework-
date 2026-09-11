@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BattleTable>
+<Row>
+<Id>1001</Id><DevNote>Demo Battle 1</DevNote><StoryPlayerCharacter>101</StoryPlayerCharacter><EnemyCharacter>102</EnemyCharacter><PlayerAxis>-60, 0</PlayerAxis><EnemyAxis>60, 0</EnemyAxis><BgmName>-1</BgmName><BgImgName>-1</BgImgName><BgImgAxis>0, 0</BgImgAxis><LimitRound>20</LimitRound><WinIllust>-1</WinIllust><PONValues>0.35, 0.45, 0.65</PONValues><EliteValues>0.65, 0.55, 0.35</EliteValues></Row>
+<Row>
+<Id>1002</Id><DevNote>Demo Battle 2</DevNote><StoryPlayerCharacter>101</StoryPlayerCharacter><EnemyCharacter>102</EnemyCharacter><PlayerAxis>-60, 0</PlayerAxis><EnemyAxis>60, 0</EnemyAxis><BgmName>-1</BgmName><BgImgName>-1</BgImgName><BgImgAxis>0, 0</BgImgAxis><LimitRound>20</LimitRound><WinIllust>-1</WinIllust><PONValues>0.35, 0.45, 0.65</PONValues><EliteValues>0.65, 0.55, 0.35</EliteValues></Row>
+</BattleTable>
