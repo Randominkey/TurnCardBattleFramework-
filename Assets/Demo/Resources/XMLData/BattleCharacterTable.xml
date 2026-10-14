@@ -1,7 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <BattleCharacterTable>
-<Row>
-<Id>101</Id><DevNote>Player Character</DevNote><Name>10001</Name><MaxHp>50</MaxHp><CharacterFaceIconName>-1</CharacterFaceIconName><DefaultSpriteNames>-1</DefaultSpriteNames><AttackSpriteName>-1</AttackSpriteName><HitSpriteNames>-1</HitSpriteNames><SpecialSkillSpriteName>-1</SpecialSkillSpriteName><SetSkillElements>1001, 1002, 1003</SetSkillElements><GetSkills>2, 2, 2</GetSkills><SpecialSkillId>1004</SpecialSkillId><SpecialSkillGauge>10</SpecialSkillGauge><ChainId>1001</ChainId></Row>
-<Row>
-<Id>102</Id><DevNote>AI Rival</DevNote><Name>10002</Name><MaxHp>50</MaxHp><CharacterFaceIconName>-1</CharacterFaceIconName><DefaultSpriteNames>-1</DefaultSpriteNames><AttackSpriteName>-1</AttackSpriteName><HitSpriteNames>-1</HitSpriteNames><SpecialSkillSpriteName>-1</SpecialSkillSpriteName><SetSkillElements>2001, 2002, 2003</SetSkillElements><GetSkills>2, 2, 2</GetSkills><SpecialSkillId>2004</SpecialSkillId><SpecialSkillGauge>10</SpecialSkillGauge><ChainId>1002</ChainId></Row>
+	<Row>
+		<Id>101</Id>
+		<DevNote>[Player] Challenger</DevNote>
+		<Name>10001</Name>
+		<MaxHp>50</MaxHp>
+		<CharacterFaceIconName>CharIcon_Demo_Player</CharacterFaceIconName>
+		<DefaultSpriteNames>CharIllust_Demo_Player</DefaultSpriteNames>
+		<AttackSpriteName>CharIllust_Demo_Player</AttackSpriteName>
+		<HitSpriteNames>CharIllust_Demo_Player</HitSpriteNames>
+		<SpecialSkillSpriteName>CharIllust_Demo_Player</SpecialSkillSpriteName>
+		<SetSkillElements>1001, 1002, 1003</SetSkillElements>
+		<GetSkills>2, 2, 2</GetSkills>
+		<SpecialSkillId>1004</SpecialSkillId>
+		<SpecialSkillGauge>10</SpecialSkillGauge>
+		<ChainId>1001</ChainId>
+	</Row>
+	<Row>
+		<Id>102</Id>
+		<DevNote>[AI] Rival Duelist</DevNote>
+		<Name>10002</Name>
+		<MaxHp>50</MaxHp>
+		<CharacterFaceIconName>CharIcon_Demo_Rival</CharacterFaceIconName>
+		<DefaultSpriteNames>CharIllust_Demo_Rival</DefaultSpriteNames>
+		<AttackSpriteName>CharIllust_Demo_Rival</AttackSpriteName>
+		<HitSpriteNames>CharIllust_Demo_Rival</HitSpriteNames>
+		<SpecialSkillSpriteName>CharIllust_Demo_Rival</SpecialSkillSpriteName>
+		<SetSkillElements>2001, 2002, 2003</SetSkillElements>
+		<GetSkills>2, 2, 2</GetSkills>
+		<SpecialSkillId>2004</SpecialSkillId>
+		<SpecialSkillGauge>10</SpecialSkillGauge>
+		<ChainId>1003</ChainId>
+	</Row>
 </BattleCharacterTable>

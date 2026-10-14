@@ -1,69 +1,80 @@
 # Turn-Based Card Battle Core Framework
 
 A modular, reactive, and data-driven turn-based card battle framework built in **Unity (C#)**.  
-Designed with clean architecture principles, state decoupling via **UniRx**, and an asynchronous **Command-Pattern Action Sequencer** for fluid presentation.
+Engineered with clean layered architecture principles (**Model - Flow - Presenter - Production - View**), reactive state decoupling via **UniRx**, zero-allocation object pooling, and a dedicated **Action Sequencer** for fluid presentation.
 
 ---
 
-## 🏗️ Architectural Overview
+## 🏗️ Layered Architecture & Data Flow
 
 ```mermaid
 graph TD
-    subgraph Data Layer
-        XMLData[XML Data Tables] -->|TableBase| TableManager[Table Manager]
-        TableManager --> BattleTable[Battle & Character Config]
-        TableManager --> SkillTable[Skill & Chain Config]
+    subgraph Model Layer ["Model Layer (Pure Business Logic & State)"]
+        BattleModel["BattleModel<br/>(Reactive State via UniRx)"]
+        BattleLogic["BattleLogic<br/>(RPS Rules & Damage Formulas)"]
+        BattleAI["BattleAI<br/>(PON / Elite Heuristics)"]
     end
 
-    subgraph Core Battle Logic
-        BattleModel[BattleModel<br/>Reactive State via UniRx]
-        BattleLogic[BattleLogic<br/>RPS Resolution & Damage Formula]
-        AIController[AI Heuristics<br/>PON / Elite Probability Engine]
+    subgraph Flow Layer ["Flow Layer (FSM & Orchestration)"]
+        BattleExecutor["BattleExecutor<br/>(Phased Turn FSM)"]
+        BattleExecutor -->|State Mutation| BattleModel
+        BattleExecutor -->|AI Decision| BattleAI
+        BattleExecutor -->|Rule Resolution| BattleLogic
     end
 
-    subgraph Flow & Execution
-        FlowController[Flow Controller] --> BattleExecutor[BattleExecutor<br/>Phased FSM]
-        BattleExecutor -->|Setup / RoundStart| BattleModel
-        BattleExecutor -->|Command Phase| AIController
-        BattleExecutor -->|Process Phase| BattleLogic
+    subgraph Presenter Layer ["Presenter Layer (Pure C# Mediators)"]
+        CombatPresenter["BattleCombatPresenter"]
+        DamagePresenter["BattleDamagePresenter"]
+        HandPresenter["BattleHandPresenter"]
+        ClashPresenter["BattleClashPresenter"]
+        ScreenPresenter["BattleScreenPresenter"]
     end
 
-    subgraph Presentation Layer
-        BattleView[BattleView<br/>Reactive UI Binding]
-        ActionSequencer[ActionSequencer<br/>Command Queue]
-        BattleProduction[BattleProductionManager<br/>VFX / Tween Orchestration]
+    subgraph Production Layer ["Production Layer (Timeline & Command Queue)"]
+        ActionSequencer["ActionSequencer<br/>(Asynchronous Command Queue)"]
+        ProductionManager["BattleProductionManager<br/>(VFX / Cut-In Orchestrator)"]
     end
 
-    BattleModel -.->|Observables| BattleView
-    BattleLogic --> ActionSequencer
-    ActionSequencer --> BattleProduction
+    subgraph View Layer ["View Layer (uGUI Components)"]
+        BattleView["BattleView & BattleStatusView"]
+        CardViews["CardView & CardViewPool (Zero-GC)"]
+        ChainViews["ChainViews (Fever / Rain / Combo)"]
+    end
+
+    BattleModel -.->|Reactive Observables| PresenterLayer
+    PresenterLayer -->|Bind / Render| ViewLayer
+    FlowLayer -->|Push Commands| ActionSequencer
+    ActionSequencer --> ProductionManager
+    ProductionManager -->|Tween & Trigger| ViewLayer
 ```
 
-### Key Engineering Highlights
+---
 
-1. **Reactive State Management (UniRx)**
-   - Character HP, Special Skill Gauges, Fever states, and card collections are encapsulated as `ReactiveProperty<T>` and `ReactiveCollection<T>`.
-   - UI views reactively subscribe to state transitions without tight coupling to game loop execution.
+## 🌟 Key Engineering Highlights
 
-2. **Data-Driven Pipeline**
-   - Battle definitions, character parameters, skill effects, chain bonuses, and localized strings are decoupled into XML tables.
-   - Loaded and indexed dynamically through a generic `TableManager` and `TableBase<T>` loader.
+### 1. 5-Tier Decoupled Domain Architecture
+- **Model**: Pure data models, reactive state properties, and deterministic card battle logic with zero Unity Engine dependencies.
+- **Flow**: Finite State Machine controlling transactional turn progression:  
+  `Setup` ➔ `RoundStart` ➔ `Command` ➔ `Process` ➔ `RoundEnd` ➔ `Result`.
+- **Presenter**: Lightweight C# mediator classes bridging Models and Views without monolithic view scripts.
+- **Production**: Isolated asynchronous command sequencer managing particle effects, cut-ins, and timeline animations.
+- **View**: Domain-organized UI components (`Card`, `Chain`, `Speak`, `Battle`, `Common`).
 
-3. **Phased Finite State Machine (FSM)**
-   - `BattleExecutor` strictly controls turn flow:  
-     `Setup` ➔ `RoundStart` ➔ `Command` ➔ `Process` ➔ `RoundEnd` ➔ `Result`
-   - Prevents race conditions and guarantees transactional turn processing.
+### 2. Zero-GC UI Card Pooling System (`CardViewPool`)
+- Eliminates runtime Garbage Collection spikes by recycling card UI instances through an expandable pool.
+- Seamlessly integrated across Hand containers and Clash layout groups.
 
-4. **Heuristic AI Engine**
-   - Implements multi-tier difficulty profiles (`PON` casual vs. `Elite` tactical) using runtime probability distributions defined in data tables.
-   - Evaluates player deck tendencies, hand counters, and special skill thresholds.
+### 3. Pure Domain Automated Unit Testing (`BattleRuleTests`)
+- **21/21 Domain Rules Verified**: Full combinatorial coverage of Rock-Paper-Scissors resolution (9 rules), Fool counter rules (7 rules), and Special Skill trigger conditions (5 rules).
+- Includes one-click test execution directly within Unity Inspector custom editors and top-level menu (`Tools > Run Battle Domain Tests`).
 
-5. **Asynchronous Command Sequencer**
-   - Decouples visual tween animations (DOTween) and particle effects from underlying game rules.
-   - Chains card clashes, damage floaters, fever transitions, and camera shakes into sequential, interruptible execution queues.
+### 4. Reactive State Management via UniRx
+- HP, Special Gauges, Hand cards, and Fever states encapsulated in `ReactiveProperty<T>` and `ReactiveCollection<T>`.
+- Views reactively bind to state transitions, eliminating polling in `Update()` loops.
 
-6. **Pluggable Asset Provider (`IAssetProvider`)**
-   - Abstracted resource loading layer allows runtime swapping of asset delivery systems (e.g., Resources, Addressables, or mock providers for automated testing).
+### 5. Pluggable Asset Provider & IP-Neutral Demo Pipeline
+- `IAssetProvider` abstracts resource resolution (`Resources.Load`), enabling runtime fallback and asset provider swapping.
+- Includes in-editor **`DemoTableGenerator`** (`Tools > Portfolio > Generate Demo XML Tables`), extracting pure gameplay data while stripping commercial/third-party IP into neutral assets.
 
 ---
 
@@ -71,48 +82,50 @@ graph TD
 
 1. **Environment Requirements**:
    - **Unity Editor**: `2021.3.1f1` (LTS) or higher
-   - **Render Pipeline**: Universal Render Pipeline (URP) / Built-in compatible
+   - **Platform**: PC Standalone (Windows / macOS)
 
 2. **Opening the Demo**:
    - Clone this repository and open the project root in Unity Hub.
-   - Navigate to `Assets/Demo/Scenes/DemoBattleScene.unity` and open it.
+   - Open [Assets/Demo/Scenes/DemoBattleScene.unity](file:///c:/dev/Unity/ProjectH/Assets/Demo/Scenes/DemoBattleScene.unity).
    - Press **Play** in the Unity Editor.
 
 3. **Playing the Battle Loop**:
-   - Select one or more cards from your hand (Rock / Paper / Scissors).
-   - Press **Submit** to clash cards against the AI opponent.
-   - Fill your Special Skill gauge through clashes to unleash powerful character abilities.
-   - Win by reducing the opponent's HP to 0 or having higher HP when the round limit is reached.
+   - Select Rock, Paper, or Scissors cards from your hand.
+   - Click **Submit** to resolve clashes against the AI opponent.
+   - Gain Special Gauge from clashes to unleash character abilities (Emergency Heal / Berserk Strike).
+   - Win by reducing opponent HP to 0 or having higher HP at round limit.
 
 ---
 
-## 📂 Directory Structure
+## 📂 Repository Structure
 
 ```
 Assets/
-├── Demo/                  # Self-contained runnable battle demo
-│   ├── Prefabs/           # Clean UI card prefabs
-│   ├── Resources/XMLData/ # Pure gameplay data tables (zero external IP)
-│   ├── Scenes/            # DemoBattleScene.unity
-│   └── Sprites/           # RPS icons and panel artwork
+├── Demo/                             # Self-contained standalone battle demo
+│   ├── Editor/                       # IP-Neutral Demo Table Generator
+│   ├── Prefabs/                      # Card and UI prefabs
+│   ├── Resources/
+│   │   ├── Sprites/                  # Minimalist arena, silhouettes & RPS icons
+│   │   └── XMLData/                  # Clean gameplay data tables
+│   └── Scenes/DemoBattleScene.unity  # Runnable standalone demo scene
 ├── Plugins/
-│   ├── Demigiant/         # DOTween & DOTween Pro
-│   └── UniRx/             # Reactive Extensions for Unity
-└── Scripts/
-    └── Core/
-        ├── Audio/         # Audio management interfaces
-        ├── Battle/        # Pure business logic & reactive models
-        ├── Common/        # Game constants & shared definitions
-        ├── Flow/          # Turn flow executors & FSM controllers
-        ├── Tables/        # XML data parsing & table managers
-        ├── Tutorial/      # Dynamic tutorial narrator & overlay hooks
-        ├── Utils/         # Asset providers, singletons & dev bootstrapper
-        └── View/          # Action sequencer, card views & production managers
+│   ├── Demigiant/                    # DOTween animation engine
+│   └── UniRx/                        # Reactive Extensions for Unity
+└── Scripts/Core/
+    ├── Common/                       # Global game & audio constants
+    ├── Flow/                         # Phased FSM turn executors
+    ├── Model/                        # Pure rules, damage formulas & reactive state
+    ├── Presenter/                    # Mediator presenters (Combat, Hand, Clash, Screen)
+    ├── Production/                   # ActionSequencer & VFX orchestration
+    ├── Tables/                       # Data-driven XML parsers & loaders
+    ├── Tests/                        # Pure domain unit tests (21/21 rules)
+    ├── Utils/                        # Zero-GC CardViewPool, AssetProvider & DevBootstrapper
+    └── View/                         # Domain-segregated UI (Battle, Card, Chain, Speak, Common)
 ```
 
 ---
 
 ## 📄 License & Attribution
 
-This project is released as a portfolio and framework demonstration.  
-All gameplay systems, reactive architectures, and logic implementation authored by the repository owner.
+This repository is maintained as a technical portfolio demonstrating gameplay architecture, reactive programming, and performance optimization.  
+All framework architectures, combat logic, and pooling systems authored by the repository owner.

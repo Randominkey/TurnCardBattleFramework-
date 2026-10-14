@@ -45,7 +45,9 @@ namespace Core.Table
         Scissors,
         Paper,
         Require,
-        Buff
+        Buff,
+        Fool,
+        // Joker // 기획 변경에 따라 임시 보류
     }
 
     public enum UpgradeType

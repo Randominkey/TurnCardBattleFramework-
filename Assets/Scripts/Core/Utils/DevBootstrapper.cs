@@ -1,10 +1,13 @@
 using UnityEngine;
 using Core.Flow;
+using Core.Battle;
 
 namespace Core.Utils
 {
     public class DevBootstrapper : MonoBehaviour
     {
+        public static DevBootstrapper Instance { get; private set; }
+
         [Header("Direct Battle Test")]
         [Tooltip("체크 시 ModeFlow를 거치지 않고 BattleTable ID로 직접 배틀을 시작합니다.")]
         [SerializeField] private bool useDirectBattleId = true;
@@ -18,6 +21,26 @@ namespace Core.Utils
 
         [Tooltip("0: Speak(대화)부터 시작, 1: Battle(전투)부터 직행")]
         [SerializeField] private int startStepIndex = 1;
+
+        [Header("Battle Debug & Experiment Settings")]
+        [Tooltip("에디터 한정: 적 핸드의 카드를 가리고, 격돌(Clash) 비교 시점에만 공개합니다.")]
+        [SerializeField] private bool hideEnemyHand = true;
+
+        [Tooltip("에디터 한정: 특정 환경 요소를 강제로 고정하여 테스트합니다. (None이면 랜덤 추첨)")]
+        [SerializeField] private EnvironmentType environmentOverride = EnvironmentType.None;
+
+        public bool HideEnemyHand => hideEnemyHand;
+        public EnvironmentType EnvironmentOverride => environmentOverride;
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this) Instance = null;
+        }
 
         private void Start()
         {
@@ -34,6 +57,12 @@ namespace Core.Utils
                     FlowController.Instance.StartFlow(testModeFlowId, startStepIndex);
                 }
             }
+        }
+
+        [ContextMenu("Run Battle Domain Tests")]
+        public void RunBattleDomainTests()
+        {
+            Core.Tests.BattleRuleTests.RunAllTests();
         }
     }
 }

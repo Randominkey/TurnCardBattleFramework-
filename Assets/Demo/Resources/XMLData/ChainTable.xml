@@ -1,7 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChainTable>
-<Row>
-<Id>1001</Id><DevNote>Fever Chain</DevNote><Name>900311</Name><Desc>900312</Desc><Icon>-1</Icon><Action>Fever</Action><Chain2Values>20</Chain2Values><Chain3Values>50</Chain3Values><Chain4Values>80</Chain4Values><Chain5Values>100</Chain5Values></Row>
-<Row>
-<Id>1002</Id><DevNote>DamageUp Chain</DevNote><Name>900321</Name><Desc>900322</Desc><Icon>-1</Icon><Action>DamageUp</Action><Chain2Values>2</Chain2Values><Chain3Values>4</Chain3Values><Chain4Values>7</Chain4Values><Chain5Values>10</Chain5Values></Row>
+	<Row>
+		<Id>1001</Id>
+		<DevNote>마린 체인</DevNote>
+		<Name>900311</Name>
+		<Desc>900312</Desc>
+		<Icon>ChainIcon_Battle_Marine_1</Icon>
+		<Action>Fever</Action>
+		<ChainSetValues>100, 3, 5, 15, 30</ChainSetValues>
+		<Chain2Values>20</Chain2Values>
+		<Chain3Values>50</Chain3Values>
+		<Chain4Values>80</Chain4Values>
+		<Chain5Values>100</Chain5Values>
+	</Row>
+	<Row>
+		<Id>1002</Id>
+		<DevNote>이로하 체인</DevNote>
+		<Name>900321</Name>
+		<Desc>900322</Desc>
+		<Icon>ChainIcon_Battle_Iroha_1</Icon>
+		<Action>DamageUp</Action>
+		<ChainSetValues>-1</ChainSetValues>
+		<Chain2Values>2</Chain2Values>
+		<Chain3Values>4</Chain3Values>
+		<Chain4Values>7</Chain4Values>
+		<Chain5Values>10</Chain5Values>
+	</Row>
+
+	<Row>
+		<Id>1003</Id>
+		<DevNote>후부키 체인</DevNote>
+		<Name>900331</Name>
+		<Desc>900332</Desc>
+		<Icon>ChainIcon_Battle_Fubuki_1</Icon>
+		<Action>DiceRoll</Action>
+		<ChainSetValues>-1</ChainSetValues>
+		<Chain2Values>1, 0.166, 2, 0.166, 3, 0.167, 4, 0.167, 5, 0.167, 6, 0.167</Chain2Values>
+		<Chain3Values>2, 0.15, 3, 0.15, 4, 0.2, 5, 0.2, 6, 0.15, 8, 0.15</Chain3Values>
+		<Chain4Values>3, 0.1, 4, 0.15, 6, 0.25, 8, 0.25, 10, 0.15, 12, 0.1</Chain4Values>
+		<Chain5Values>4, 0.05, 6, 0.15, 8, 0.2, 10, 0.25, 14, 0.2, 18, 0.15</Chain5Values>
+	</Row>
+	<Row>
+		<Id>1004</Id>
+		<DevNote>코보 체인</DevNote>
+		<Name>900341</Name>
+		<Desc>900342</Desc>
+		<Icon>ChainIcon_Battle_Kobo_1</Icon>
+		<Action>Rain</Action>
+		<ChainSetValues>5, 8001</ChainSetValues>
+		<Chain2Values>1</Chain2Values>
+		<Chain3Values>1</Chain3Values>
+		<Chain4Values>1</Chain4Values>
+		<Chain5Values>1</Chain5Values>
+	</Row>
+	<Row>
+		<Id>1005</Id>
+		<DevNote>미코 체인</DevNote>
+		<Name>900351</Name>
+		<Desc>900352</Desc>
+		<Icon>ChainIcon_Battle_Miko_1</Icon>
+		<Action>Lava</Action>
+		<ChainSetValues>-1</ChainSetValues>
+		<Chain2Values>-1</Chain2Values>
+		<Chain3Values>-1</Chain3Values>
+		<Chain4Values>-1</Chain4Values>
+		<Chain5Values>-1</Chain5Values>
+	</Row>
+	<Row>
+		<Id>1006</Id>
+		<DevNote>카나데 체인</DevNote>
+		<Name>900361</Name>
+		<Desc>900362</Desc>
+		<Icon>ChainIcon_Battle_Kanade_1</Icon>
+		<Action>Rain</Action>
+		<ChainSetValues>-1</ChainSetValues>
+		<Chain2Values>2</Chain2Values>
+		<Chain3Values>4</Chain3Values>
+		<Chain4Values>7</Chain4Values>
+		<Chain5Values>10</Chain5Values>
+	</Row>
+	<Row>
+		<Id>1007</Id>
+		<DevNote>페코라 체인</DevNote>
+		<Name>900371</Name>
+		<Desc>900372</Desc>
+		<Icon>ChainIcon_Battle_Pekora_1</Icon>
+		<Action>DrawDamage</Action>
+		<ChainSetValues>-1</ChainSetValues>
+		<Chain2Values>0.1, 0</Chain2Values>
+		<Chain3Values>0.2, 1</Chain3Values>
+		<Chain4Values>0.3, 1</Chain4Values>
+		<Chain5Values>0.5, 2</Chain5Values>
+	</Row>
 </ChainTable>

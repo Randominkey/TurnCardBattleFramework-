@@ -2,6 +2,7 @@ using UnityEngine;
 using Core.Table;
 using Core.Battle;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UniRx;
@@ -22,10 +23,30 @@ namespace Core.Flow
     public class BattleExecutor : BaseFlowExecutor
     {
         [SerializeField] private Core.View.BattleView battleView;
+        [SerializeField] private Core.Tutorial.TutorialBattleScriptController tutorialScriptController;
         private BattlePhase currentPhase;
         private BattleModel battleModel;
+        private BattleChainActionHandler chainHandler;
+        private BattleSpecialSkillHandler specialSkillHandler;
+        private BattleCardDealer cardDealer;
+        private BattleRoundProcessor roundProcessor;
 
-        private void Awake() => FlowController.Instance.RegisterExecutor(this);
+        public BattleModel BattleModel => battleModel;
+        public BattlePhase CurrentPhase => currentPhase;
+        public BattleChainActionHandler ChainHandler => chainHandler;
+        public BattleSpecialSkillHandler SpecialSkillHandler => specialSkillHandler;
+        public BattleCardDealer CardDealer => cardDealer;
+        public BattleRoundProcessor RoundProcessor => roundProcessor;
+
+        private void Awake()
+        {
+            FlowController.Instance.RegisterExecutor(this);
+            if (tutorialScriptController == null)
+            {
+                tutorialScriptController = GetComponent<Core.Tutorial.TutorialBattleScriptController>() 
+                                        ?? FindObjectOfType<Core.Tutorial.TutorialBattleScriptController>();
+            }
+        }
 
         protected override void Execute() => ChangePhase(BattlePhase.Setup);
 
@@ -40,7 +61,20 @@ namespace Core.Flow
                 battleView.SetInteractionEnabled(nextPhase == BattlePhase.Command);
             }
 
-            switch (nextPhase)
+            // [Tutorial] 튜토리얼 인터셉터 체크 (흐름 일시 보류 및 재개)
+            int roundNum = battleModel != null ? battleModel.currentRound.Value : 1;
+            if (Core.Tutorial.TutorialManager.Instance != null &&
+                Core.Tutorial.TutorialManager.Instance.TryInterceptPhase(nextPhase, roundNum, () => DispatchPhase(nextPhase)))
+            {
+                return;
+            }
+
+            DispatchPhase(nextPhase);
+        }
+
+        private void DispatchPhase(BattlePhase phase)
+        {
+            switch (phase)
             {
                 case BattlePhase.Setup: HandleSetup(); break;
                 case BattlePhase.RoundStart: HandleRoundStart(); break;
@@ -51,6 +85,36 @@ namespace Core.Flow
             }
         }
 
+        /// <summary>
+        /// [New 261013] 스테이지 시작 시 환경 변화 요소 무작위 추첨
+        /// </summary>
+        private EnvironmentType DetermineEnvironment()
+        {
+#if UNITY_EDITOR
+            if (Core.Utils.DevBootstrapper.Instance != null && Core.Utils.DevBootstrapper.Instance.EnvironmentOverride != EnvironmentType.None)
+            {
+                return Core.Utils.DevBootstrapper.Instance.EnvironmentOverride;
+            }
+#endif
+
+            // 튜토리얼 스테이지(1001~1099)는 환경 요소를 비활성화하여 기본 룰 학습 보장
+            if (Core.Common.GameConstants.IsTutorialStage(executeId))
+            {
+                return EnvironmentType.None;
+            }
+
+            // 현재 확정된 2종(아이리스의 희망, 무메이의 문명) 중 무작위 1개 추첨
+            // (향후 TableManager 연동 시 테이블 데이터 기반 선택으로 확장)
+            EnvironmentType[] availableEnvironments = new EnvironmentType[]
+            {
+                EnvironmentType.IrysHope,
+                EnvironmentType.MumeiCivilization
+            };
+
+            int randomIndex = UnityEngine.Random.Range(0, availableEnvironments.Length);
+            return availableEnvironments[randomIndex];
+        }
+
         private void HandleSetup()
         {
             var battleTable = TableManager.Instance.GetTable<BattleTable>().Get(executeId);
@@ -59,18 +123,30 @@ namespace Core.Flow
             // [New] 시작 시 UI 즉시 숨김
             if (battleView != null) battleView.InitializeUIState();
 
-            // [New] 배틀 배경음 재생
-            if (!string.IsNullOrEmpty(battleTable.bgmName) && Core.Audio.SoundManager.Instance != null)
+            // [New] 배틀 배경음 재생 (BattleTable.xml에 지정된 BgmName 우선 반영, 없으면 기본값)
+            string stageBgmName = !string.IsNullOrEmpty(battleTable.bgmName) 
+                ? battleTable.bgmName 
+                : Core.Common.AudioConstants.BGM_BATTLE_DEFAULT;
+
+            if (Core.Audio.SoundManager.Instance != null)
             {
-                Core.Audio.SoundManager.Instance.PlayBgm(battleTable.bgmName);
+                Core.Audio.SoundManager.Instance.PlayBgm(stageBgmName);
             }
 
             var pData = TableManager.Instance.GetTable<BattleCharacterTable>().Get(battleTable.storyPlayerCharacterId);
             var eData = TableManager.Instance.GetTable<BattleCharacterTable>().Get(battleTable.enemyCharacterId);
 
             battleModel = new BattleModel(battleTable, pData, eData);
+            chainHandler = new BattleChainActionHandler(battleModel, battleView, this, () => {
+                if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
+            });
+            specialSkillHandler = new BattleSpecialSkillHandler(battleModel, battleView, chainHandler);
+            cardDealer = new BattleCardDealer(battleModel, chainHandler, tutorialScriptController, executeId);
+            roundProcessor = new BattleRoundProcessor(battleModel, cardDealer, chainHandler, specialSkillHandler);
             
-            // [New] 피버 모드 BGM 관리
+            // [New 261013] 환경 변화 요소 추첨 (확정된 2종 중 무작위 1개 선택)
+            battleModel.currentEnvironment.Value = DetermineEnvironment();
+            Debug.Log($"[Environment] Stage Environment initialized: {battleModel.currentEnvironment.Value}");
             Observable.Merge(
                 battleModel.player.isFeverModeActive,
                 battleModel.enemy.isFeverModeActive
@@ -80,14 +156,28 @@ namespace Core.Flow
                 
                 if (battleModel.player.isFeverModeActive.Value || battleModel.enemy.isFeverModeActive.Value)
                 {
-                    Core.Audio.SoundManager.Instance.PlayBgm("BGM_B_Fever");
+                    Core.Audio.SoundManager.Instance.PlayBgm(Core.Common.AudioConstants.BGM_FEVER);
                 }
                 else
                 {
-                    Core.Audio.SoundManager.Instance.PlayBgm(battleTable.bgmName);
+                    Core.Audio.SoundManager.Instance.PlayBgm(stageBgmName);
                 }
             })
             .AddTo(this);
+
+            // [Tutorial] 전역 피처 가이드: 플레이어 최초 피버 모드 진입 시 인터셉트 팝업
+            battleModel.player.isFeverModeActive
+                .Where(isFever => isFever)
+                .Subscribe(_ => {
+                    if (Core.Tutorial.TutorialManager.Instance != null)
+                    {
+                        Core.Tutorial.TutorialManager.Instance.TryInterceptCondition(
+                            Core.Tutorial.TutorialTriggerPhase.FeverModeStart, 
+                            null
+                        );
+                    }
+                })
+                .AddTo(this);
 
             if (battleView != null)
             {
@@ -106,15 +196,6 @@ namespace Core.Flow
                 };
             }
 
-            // [Tutorial] 튜토리얼 배틀 여부 체크
-            if (executeId >= 1000 && executeId < 1100)
-            {
-                if (Core.Tutorial.TutorialManager.Instance != null)
-                {
-                    Core.Tutorial.TutorialManager.Instance.StartTutorial(battleView);
-                }
-            }
-
             // [New] 배틀 시작 연출 추가 (SO 기반)
             if (battleView != null && battleView.ProductionManager != null)
             {
@@ -122,47 +203,43 @@ namespace Core.Flow
                 sequencer.AddCommand(new ProductionCommand(battleView.ProductionManager, ProductionType.BattleStart));
                 // [New] 배틀 스타트 후 UI 페이드 인
                 sequencer.AddCommand(new ActionCommand(() => battleView.FadeInUI(1.0f, null)));
-                sequencer.Play(() => ChangePhase(BattlePhase.RoundStart));
+                sequencer.Play(() => {
+                    // [New 261013] 환경 요소 배너 연출 후 RoundStart 진행
+                    if (battleModel.currentEnvironment.Value != EnvironmentType.None)
+                    {
+                        battleView.ShowEnvironmentBanner(battleModel.currentEnvironment.Value, () => ChangePhase(BattlePhase.RoundStart));
+                    }
+                    else
+                    {
+                        ChangePhase(BattlePhase.RoundStart);
+                    }
+                });
             }
             else
             {
                 if (battleView != null) battleView.FadeInUI(0.5f, null);
-                ChangePhase(BattlePhase.RoundStart);
+                if (battleView != null && battleModel.currentEnvironment.Value != EnvironmentType.None)
+                {
+                    battleView.ShowEnvironmentBanner(battleModel.currentEnvironment.Value, () => ChangePhase(BattlePhase.RoundStart));
+                }
+                else
+                {
+                    ChangePhase(BattlePhase.RoundStart);
+                }
             }
         }
 
         private void HandleRoundStart()
         {
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            int drawCount = (battleModel.currentRound.Value == 1) ? 0 : (gameSet?.roundDrawCards ?? 1);
-            int maxCards = gameSet?.maxCards ?? 8;
-
             // --- 1단계: Card Draw ---
-            if (battleModel.currentRound.Value == 1)
-            {
-                DrawInitialCards(battleModel.player);
-                DrawInitialCards(battleModel.enemy);
-            }
-            else
-            {
-                for (int i = 0; i < drawCount; i++)
-                {
-                    if (battleModel.player.hand.Count < maxCards) DrawRandomCard(battleModel.player);
-                    if (battleModel.enemy.hand.Count < maxCards) DrawRandomCard(battleModel.enemy);
-                }
-            }
+            cardDealer.ProcessRoundStartDraw();
 
             // --- 2단계: 상태 이상 및 특수 상태 갱신 ---
-            UpdateStatusDurations(battleModel.player);
-            UpdateStatusDurations(battleModel.enemy);
+            cardDealer.UpdateAllStatusDurations();
 
             if (battleView != null) battleView.RefreshHandVisuals();
-
-            // --- 3단계: 피버 모드 관리 ---
-            ManageFeverState(battleModel.player);
-            ManageFeverState(battleModel.enemy);
-
-            // --- 4단계: 특수 스킬 체크 ---
+            
+            // --- 3단계: 특수 스킬 체크 ---
             if (!battleModel.player.isFeverModeActive.Value && !battleModel.enemy.isFeverModeActive.Value)
             {
                 if (battleModel.enemy.IsGaugeFull() && !battleModel.enemy.isSpecialActive)
@@ -174,16 +251,12 @@ namespace Core.Flow
             // [New] 라운드 시작 전 UI 슬라이드 인 (타이밍 앞당김)
             if (battleView != null) battleView.SlideInHands(0.4f, null);
 
-            // [New] 라운드 배너 연출을 전용 연출 시스템으로 교체
+            // 라운드 시작 연출 (전용 연출 시스템 ProductionManager 활용)
             if (battleView != null && battleView.ProductionManager != null)
             {
                 var sequencer = new ActionSequencer();
-                sequencer.AddCommand(new ProductionCommand(battleView.ProductionManager, ProductionType.RoundStart));
+                sequencer.AddCommand(new ProductionCommand(battleView.ProductionManager, ProductionType.RoundStart, data: battleModel.currentRound.Value));
                 sequencer.Play(() => ChangePhase(BattlePhase.Command));
-            }
-            else if (battleView != null)
-            {
-                battleView.ShowRoundBanner(battleModel.currentRound.Value, () => ChangePhase(BattlePhase.Command));
             }
             else
             {
@@ -191,220 +264,27 @@ namespace Core.Flow
             }
         }
 
-        private int GetMaxFeverGauge(BattleCharacterModel charModel)
-        {
-            var chainRow = TableManager.Instance.GetTable<ChainTable>().Get(charModel.tableData.chainId);
-            if (chainRow != null && chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 0)
-                return (int)chainRow.ChainSetValues[0];
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            return gameSet?.maxFeverGauge ?? 100;
-        }
-
-        private int GetLimitFeverRound(BattleCharacterModel charModel)
-        {
-            var chainRow = TableManager.Instance.GetTable<ChainTable>().Get(charModel.tableData.chainId);
-            if (chainRow != null && chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 1)
-                return (int)chainRow.ChainSetValues[1];
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            return gameSet?.limitFeverRound ?? 3;
-        }
-
-        private float GetFeverStackDamageCoeff(BattleCharacterModel charModel)
-        {
-            var chainRow = TableManager.Instance.GetTable<ChainTable>().Get(charModel.tableData.chainId);
-            if (chainRow != null && chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 2)
-                return chainRow.ChainSetValues[2];
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            return (gameSet != null && gameSet.FeverStackDamage != null && gameSet.FeverStackDamage.Length > 0) ? gameSet.FeverStackDamage[0] : 5f;
-        }
-
-        private float GetFeverAutoFinisherDamage(BattleCharacterModel charModel)
-        {
-            var chainRow = TableManager.Instance.GetTable<ChainTable>().Get(charModel.tableData.chainId);
-            if (chainRow != null && chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 3)
-                return chainRow.ChainSetValues[3];
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            return (gameSet != null && gameSet.FeverStackDamage != null && gameSet.FeverStackDamage.Length > 0) ? gameSet.FeverStackDamage.Last() : 0f;
-        }
-
-        private void ManageFeverState(BattleCharacterModel model)
-        {
-            int maxGauge = GetMaxFeverGauge(model);
-            int limitRound = GetLimitFeverRound(model);
-
-            if (!model.isFeverModeActive.Value)
-            {
-                if (model.chainGauge.Value >= maxGauge)
-                {
-                    model.ActivateFeverMode(limitRound);
-                    if (battleView != null) battleView.RefreshHandVisuals();
-                }
-            }
-            else
-            {
-                model.remainingFeverRound--;
-                if (model.remainingFeverRound <= 0)
-                {
-                    model.EndFeverMode(true);
-                }
-            }
-        }
-
-        public void ExecuteSpecialSkill(BattleCharacterModel owner)
-        {
-            owner.UseSpecialGauge();
-            
-            var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(owner.tableData.specialSkillId);
-            if (skillRow == null) return;
-
-            // [New] 스페셜 스킬 발동 연출 실행
-            if (battleView != null && battleView.ProductionManager != null)
-            {
-                // Buff 타입은 발동 즉시 Success 연출, Require 타입은 Cast 연출 실행
-                bool isBuff = (skillRow.element == SkillElement.Buff);
-                ProductionType pType = isBuff ? ProductionType.SpecialSkillSuccess : ProductionType.SpecialSkillCast;
-                SpecialSkillPhase phase = isBuff ? SpecialSkillPhase.Success : SpecialSkillPhase.Cast;
-
-                var productionData = new SpecialSkillProductionData {
-                    characterRow = owner.tableData,
-                    skillRow = skillRow,
-                    phase = phase
-                };
-                
-                // 캐릭터 KeyName을 subKey로 전달하여 SO에서 캐릭터별 연출(하이라이트 등) 구분 가능
-                battleView.ProductionManager.StartCoroutine(battleView.ProductionManager.PlayProduction(
-                    pType, 
-                    owner.tableData.KeyName, 
-                    null, 
-                    productionData));
-
-                // [New] Buff 타입 스킬 발동 시 캐릭터 포즈 변경 연출 추가
-                if (isBuff)
-                {
-                    battleView.StartCoroutine(battleView.PlaySpecialPose(owner));
-                }
-            }
-
-            string action = skillRow.action.ToLower();
-            var opponent = (owner == battleModel.player) ? battleModel.enemy : battleModel.player;
-
-            if (action == "breakcard")
-            {
-                int breakCount = (skillRow.ActionValues.Length > 0) ? (int)skillRow.ActionValues[0] : 1;
-                int duration = (skillRow.ActionValues.Length > 1) ? (int)skillRow.ActionValues[1] : 2;
-                BreakOpponentCards(opponent, breakCount, duration);
-                
-                if (battleView != null) battleView.RefreshHandVisuals();
-            }
-            else if (action == "berserk")
-            {
-                Debug.Log($"[Special] {owner.tableData.id} Berserk activated with AttackMult={owner.attackMultiplier}, DefMult={owner.defenseMultiplier}");
-            }
-
-            Debug.Log($"[Special] {owner.tableData.id} executed Special Skill: {action}");
-        }
-
+        public void ExecuteSpecialSkill(BattleCharacterModel owner) => specialSkillHandler.ExecuteSpecialSkill(owner);
         private void ExecuteEnemySpecialSkill() => ExecuteSpecialSkill(battleModel.enemy);
 
-        private ProductionCommand GetSpecialSuccessCommand(BattleCharacterModel owner, SkillTableRow skillRow, int winnerIndex)
+
+        public void DrawInitialCards(BattleCharacterModel model) => cardDealer?.DrawInitialCards(model);
+        public CardInstance DrawRandomCard(BattleCharacterModel model) => cardDealer?.DrawRandomCard(model);
+
+        private void HandleCommand()
         {
-            if (battleView != null && battleView.ProductionManager != null)
+            Debug.Log("[Battle] Waiting for Player Command...");
+
+            // [Tutorial] 1라운드 시작 시 모든 UI 접근 권한이 열리기 직전에 튜토리얼 딤드 및 통제 시작
+            if (Core.Common.GameConstants.IsTutorialStage(executeId) && battleModel != null && battleModel.currentRound.Value == 1)
             {
-                // [Fix] 스킬 타입 및 발동 조건에 따른 성공 컷인 반환
-                bool isSuccess = false;
-                
-                if (skillRow.element == SkillElement.Require)
+                if (Core.Tutorial.TutorialManager.Instance != null && !Core.Tutorial.TutorialManager.Instance.IsTutorialActive)
                 {
-                    string action = skillRow.action.ToLower();
-                    if (action == "loseheal")
-                    {
-                        // LoseHeal은 격돌에서 패배했을 때 성공 연출 출력
-                        bool isOwnerWinner = (owner == battleModel.player && winnerIndex == 1) || (owner == battleModel.enemy && winnerIndex == 2);
-                        if (!isOwnerWinner && winnerIndex != 0) isSuccess = true;
-                    }
-                    else
-                    {
-                        // Berserk 포함 일반 Require 스킬은 격돌 승리 시 성공 연출
-                        bool isOwnerWinner = (owner == battleModel.player && winnerIndex == 1) || (owner == battleModel.enemy && winnerIndex == 2);
-                        if (isOwnerWinner) isSuccess = true;
-                    }
-                }
-
-                if (!isSuccess) return null;
-
-                var productionData = new SpecialSkillProductionData {
-                    characterRow = owner.tableData,
-                    skillRow = skillRow,
-                    phase = SpecialSkillPhase.Success
-                };
-                
-                return new ProductionCommand(
-                    battleView.ProductionManager, 
-                    ProductionType.SpecialSkillSuccess, 
-                    owner.tableData.KeyName, 
-                    null, 
-                    productionData);
-            }
-            return null;
-        }
-
-        private void DrawInitialCards(BattleCharacterModel model)
-        {
-            var skillIds = model.tableData.SkillIds;
-            var counts = model.tableData.InitialSkills;
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            int maxCards = gameSet?.maxCards ?? 8;
-
-            for (int i = 0; i < skillIds.Length; i++)
-            {
-                if (i >= counts.Length) break;
-                for (int j = 0; j < counts[i]; j++)
-                {
-                    if (model.hand.Count >= maxCards) break;
-                    var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(skillIds[i]);
-                    model.hand.Add(new CardInstance(skillRow));
+                    Core.Tutorial.TutorialManager.Instance.StartTutorial(battleView);
                 }
             }
         }
 
-        private void DrawRandomCard(BattleCharacterModel model)
-        {
-            int randomIdx = UnityEngine.Random.Range(0, model.tableData.SkillIds.Length);
-            int skillId = model.tableData.SkillIds[randomIdx];
-            var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(skillId);
-            var newCard = new CardInstance(skillRow);
-            model.hand.Add(newCard);
-
-            var opponent = (model == battleModel.player) ? battleModel.enemy : battleModel.player;
-            if (opponent.drawDamageProb.Value > 0)
-            {
-                if (UnityEngine.Random.value < opponent.drawDamageProb.Value)
-                {
-                    int damage = opponent.drawDamageValue.Value;
-                    model.TakeDamage(damage);
-                    Debug.Log($"[Status] DrawDamage Triggered: {damage} damage taken by {model.tableData.id}");
-                }
-            }
-        }
-
-        private void HandleCommand() => Debug.Log("[Battle] Waiting for Player Command...");
-
-        private void BreakOpponentCards(BattleCharacterModel target, int count, int duration)
-        {
-            if (target.hand.Count == 0) return;
-
-            var availableCards = new List<CardInstance>(target.hand).FindAll(c => !c.IsBroken);
-            if (availableCards.Count == 0) return;
-
-            int actualBreakCount = Mathf.Min(availableCards.Count, count);
-            for (int i = 0; i < actualBreakCount; i++)
-            {
-                int idx = UnityEngine.Random.Range(0, availableCards.Count);
-                var card = availableCards[idx];
-                card.BreakRemainingRound = duration;
-                availableCards.RemoveAt(idx);
-            }
-        }
 
         private void ProcessPlayerDraw()
         {
@@ -441,17 +321,32 @@ namespace Core.Flow
             battleModel.playerChoseDraw = false;
             battleModel.enemyChoseDraw = false;
 
-            var npcSelected = BattleLogic.CalculateNPCMove(battleModel);
-            foreach (var card in npcSelected)
-            {
-                battleModel.enemySelectedCards.Add(card);
-            }
-
             foreach (var card in selectedCards)
             {
                 battleModel.playerSelectedCards.Add(card);
-                // [Fix] 플레이어의 핸드 제거는 이미 View에서 Submit 시점에 되었을 수 있으나 
-                // 일관성을 위해 모델 레벨의 핸드 제거는 HandleProcess로 미룸
+            }
+
+            // 1라운드 플레이어 선택 속성 기록 (2R, 3R 드로우 계산용)
+            if (battleModel.currentRound.Value == 1 && selectedCards.Count > 0 && cardDealer != null)
+            {
+                cardDealer.PlayerFirstRoundElement = selectedCards[0].TableData.element;
+            }
+
+            // 튜토리얼 스크립트 대응패 우선 확인
+            List<CardInstance> npcSelected = null;
+            if (tutorialScriptController != null && tutorialScriptController.IsApplicable(executeId, battleModel.currentRound.Value))
+            {
+                npcSelected = tutorialScriptController.GetScriptedNPCMove(battleModel);
+            }
+
+            if (npcSelected == null)
+            {
+                npcSelected = BattleLogic.CalculateNPCMove(battleModel);
+            }
+
+            foreach (var card in npcSelected)
+            {
+                battleModel.enemySelectedCards.Add(card);
             }
 
             ChangePhase(BattlePhase.Process);
@@ -459,160 +354,49 @@ namespace Core.Flow
 
         private void HandleProcess()
         {
-            // [Fix] 실제 카드 사용 시점에 핸드에서 제거 (증발 방지)
-            foreach (var card in battleModel.playerSelectedCards) battleModel.player.hand.Remove(card);
-            foreach (var card in battleModel.enemySelectedCards) battleModel.enemy.hand.Remove(card);
-
-            int winner = 0;
-            if (battleModel.playerChoseDraw && battleModel.enemyChoseDraw) winner = 0;
-            else if (battleModel.playerChoseDraw) winner = 2;
-            else if (battleModel.enemyChoseDraw) winner = 1;
-            else if (battleModel.playerSelectedCards.Count > 0 && battleModel.enemySelectedCards.Count > 0)
-            {
-                winner = BattleLogic.DetermineWinner(battleModel.playerSelectedCards[0].TableData.element, 
-                                                   battleModel.enemySelectedCards[0].TableData.element);
-            }
-
-            Debug.Log($"[Battle] Decision -> Winner: {winner} (P_Draw: {battleModel.playerChoseDraw}, E_Draw: {battleModel.enemyChoseDraw}, P_Cards: {battleModel.playerSelectedCards.Count}, E_Cards: {battleModel.enemySelectedCards.Count})");
-
-            if (battleModel.playerChoseDraw) DrawRandomCard(battleModel.player);
-            if (battleModel.enemyChoseDraw) DrawRandomCard(battleModel.enemy);
-
-            bool isRoundEndGame = battleModel.currentRound.Value > battleModel.battleTable.limitRound;
-            float pDamage = 0, eDamage = 0;
-            if (winner == 1) eDamage = BattleLogic.CalculateDamage(battleModel, 1, isRoundEndGame);
-            else if (winner == 2) pDamage = BattleLogic.CalculateDamage(battleModel, 2, isRoundEndGame);
-            else if (winner == 0)
-            {
-                // [Berserk] 무승부 시 상대방에게 DrawDamage 부여
-                if (battleModel.player.isSpecialActive && battleModel.player.drawDamageOnTie > 0)
-                {
-                    float baseDmg = BattleLogic.CalculateTotalBaseDamage(battleModel.playerSelectedCards);
-                    if (baseDmg <= 0) baseDmg = 1f;
-                    eDamage += baseDmg * battleModel.player.drawDamageOnTie * battleModel.player.attackMultiplier;
-                    Debug.Log($"[Berserk] Player Berserk DrawDamage on Tie: {eDamage}");
-                }
-                if (battleModel.enemy.isSpecialActive && battleModel.enemy.drawDamageOnTie > 0)
-                {
-                    float baseDmg = BattleLogic.CalculateTotalBaseDamage(battleModel.enemySelectedCards);
-                    if (baseDmg <= 0) baseDmg = 1f;
-                    pDamage += baseDmg * battleModel.enemy.drawDamageOnTie * battleModel.enemy.attackMultiplier;
-                    Debug.Log($"[Berserk] Enemy Berserk DrawDamage on Tie: {pDamage}");
-                }
-            }
-
-            float pGauge = BattleLogic.CalculateTotalGauge(battleModel.playerSelectedCards);
-            float eGauge = BattleLogic.CalculateTotalGauge(battleModel.enemySelectedCards);
-
-            Action applyChain = null;
-            if (winner == 1) applyChain = () => BattleLogic.ApplyChainEffects(battleModel, 1, battleModel.playerSelectedCards);
-            else if (winner == 2) applyChain = () => BattleLogic.ApplyChainEffects(battleModel, 2, battleModel.enemySelectedCards);
-
-            Action applyResults = () => {
-                if (pDamage > 0)
-                {
-                    var pSkill = TableManager.Instance.GetTable<SkillTable>().Get(battleModel.player.tableData.specialSkillId);
-                    if (battleModel.player.isSpecialActive && pSkill?.action == "LoseHeal" && winner == 2)
-                    {
-                        battleModel.player.Heal(pDamage);
-                    }
-                    else battleModel.player.TakeDamage(pDamage);
-                }
-
-                if (eDamage > 0)
-                {
-                    var eSkill = TableManager.Instance.GetTable<SkillTable>().Get(battleModel.enemy.tableData.specialSkillId);
-                    if (battleModel.enemy.isSpecialActive && eSkill?.action == "LoseHeal" && winner == 1)
-                    {
-                        battleModel.enemy.Heal(eDamage);
-                    }
-                    else battleModel.enemy.TakeDamage(eDamage);
-                }
-                
-                if (pGauge > 0) battleModel.player.AddGauge(pGauge);
-                if (eGauge > 0) battleModel.enemy.AddGauge(eGauge);
-
-                HandleFeverResults(winner);
-                applyChain?.Invoke();
-            };
+            var result = roundProcessor.ProcessRound();
 
             if (battleView != null)
             {
-                // [New] 스페셜 스킬 성공 연출이 필요한지 사전에 판단
-                ProductionCommand successCmd = null;
-
-                // 플레이어가 특수 스킬 활성 상태이고, 조건(LoseHeal 등)을 만족하면 성공 컷인 생성
-                if (battleModel.player.isSpecialActive)
-                {
-                    var pSkill = TableManager.Instance.GetTable<SkillTable>().Get(battleModel.player.tableData.specialSkillId);
-                    if (pSkill != null) successCmd = GetSpecialSuccessCommand(battleModel.player, pSkill, winner);
-                }
-
-                // 적이 특수 스킬 활성 상태이고, 조건을 만족하면 성공 컷인 생성 (플레이어와 동시에 만족할 일은 현재 로직상 드묾)
-                if (successCmd == null && battleModel.enemy.isSpecialActive)
-                {
-                    var eSkill = TableManager.Instance.GetTable<SkillTable>().Get(battleModel.enemy.tableData.specialSkillId);
-                    if (eSkill != null) successCmd = GetSpecialSuccessCommand(battleModel.enemy, eSkill, winner);
-                }
-
-                float roundDamage = (winner == 1) ? eDamage : ((winner == 2) ? pDamage : 0f);
-                battleView.PlayDamageAnimation(winner, battleModel, applyResults, () => {
-                    CheckAutoFinisher(() => {
-                        if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
-                        else ChangePhase(BattlePhase.RoundEnd);
-                    });
-                }, roundDamage, successCmd);
+                battleView.PlayDamageAnimation(
+                    result.Winner,
+                    battleModel,
+                    result.ApplyResults,
+                    () => {
+                        // [체인 타이밍 3: 라운드 플로우 - 가위바위보 종료]
+                        chainHandler.OnRpsEnd(result.Winner, () => {
+                            if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
+                            else ChangePhase(BattlePhase.RoundEnd);
+                        });
+                    },
+                    result.RoundDamage,
+                    result.SuccessCommand,
+                    result.ApplyAttackWinChain);
             }
             else
             {
-                applyResults();
-                CheckAutoFinisher(() => {
+                result.ApplyAttackWinChain();
+                result.ApplyResults();
+                chainHandler.OnRpsEnd(result.Winner, () => {
                     if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
                     else ChangePhase(BattlePhase.RoundEnd);
                 });
             }
         }
 
-        private void HandleFeverResults(int winner)
-        {
-            if (battleModel.player.isFeverModeActive.Value)
-            {
-                if (winner == 1) battleModel.player.feverStack.Value++;
-                else battleModel.player.EndFeverMode(false);
-            }
-            if (battleModel.enemy.isFeverModeActive.Value)
-            {
-                if (winner == 2) battleModel.enemy.feverStack.Value++;
-                else battleModel.enemy.EndFeverMode(false);
-            }
-        }
 
-        private void CheckAutoFinisher(Action onComplete)
-        {
-            int pLimit = GetLimitFeverRound(battleModel.player);
-            int eLimit = GetLimitFeverRound(battleModel.enemy);
 
-            if (battleModel.player.isFeverModeActive.Value && battleModel.player.feverStack.Value >= pLimit)
-            {
-                float bonusDmg = GetFeverAutoFinisherDamage(battleModel.player);
-                battleModel.enemy.TakeDamage(bonusDmg);
-                battleModel.player.EndFeverMode(true);
-                onComplete?.Invoke();
-            }
-            else if (battleModel.enemy.isFeverModeActive.Value && battleModel.enemy.feverStack.Value >= eLimit)
-            {
-                float bonusDmg = GetFeverAutoFinisherDamage(battleModel.enemy);
-                battleModel.player.TakeDamage(bonusDmg);
-                battleModel.enemy.EndFeverMode(true);
-                onComplete?.Invoke();
-            }
-            else onComplete?.Invoke();
-        }
+
 
         private void HandleRoundEnd()
         {
             battleModel.player.ResetSpecialEffects();
             battleModel.enemy.ResetSpecialEffects();
+
+            // [New 260921] 특수 스킬 봉쇄 잔여 라운드 갱신 (1라운드 경과 시 자동 해제)
+            battleModel.player.UpdateSkillBlockDuration();
+            battleModel.enemy.UpdateSkillBlockDuration();
+
             battleModel.currentRound.Value++;
             battleModel.ResetRoundSelection();
 
@@ -634,40 +418,9 @@ namespace Core.Flow
             return battleModel.player.hp.Value <= 0 || battleModel.enemy.hp.Value <= 0;
         }
 
-        private void EndFeverModeWithDamage(BattleCharacterModel charModel, bool success, Action onComplete = null)
-        {
-            if (!charModel.isFeverModeActive.Value) { onComplete?.Invoke(); return; }
-
-            int stack = charModel.feverStack.Value;
-            var opponent = (charModel == battleModel.player) ? battleModel.enemy : battleModel.player;
-
-            if (success && stack > 0)
-            {
-                float coeff = GetFeverStackDamageCoeff(charModel);
-                float bonusDmg = stack * coeff;
-                
-                if (battleView != null)
-                {
-                    int winnerIndex = (charModel == battleModel.player) ? 1 : 2;
-                    battleView.PlayDamageAnimation(winnerIndex, battleModel, () => {
-                        opponent.TakeDamage(bonusDmg);
-                        charModel.EndFeverMode(success);
-                    }, () => {
-                        if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
-                        else onComplete?.Invoke();
-                    }, bonusDmg);
-                    return;
-                }
-                else opponent.TakeDamage(bonusDmg);
-            }
-            charModel.EndFeverMode(success);
-            if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);
-            else onComplete?.Invoke();
-        }
-
         public void ProcessPlayerEndFever()
         {
-            EndFeverModeWithDamage(battleModel.player, true, () => {
+            chainHandler.OnManualFeverEnd(() => {
                 // [Fix] 다음 라운드 AI 계산만 수행하고 핸드 제거는 하지 않음
                 var npcSelected = BattleLogic.CalculateNPCMove(battleModel);
                 battleModel.enemySelectedCards.Clear();
@@ -681,18 +434,6 @@ namespace Core.Flow
             });
         }
 
-        private void UpdateStatusDurations(BattleCharacterModel charModel)
-        {
-            var hand = charModel.hand;
-            for (int i = 0; i < hand.Count; i++)
-            {
-                var card = hand[i];
-                if (card.BreakRemainingRound > 0)
-                {
-                    if (card.BreakRemainingRound <= 1) card.BreakRemainingRound = 0;
-                    else card.BreakRemainingRound--;
-                }
-            }
-        }
+        public void UpdateStatusDurations(BattleCharacterModel charModel) => cardDealer?.UpdateStatusDurations(charModel);
     }
 }

@@ -1,19 +1,57 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <StringTable>
-<Row><Id>10001</Id><KrString>플레이어</KrString><EnString>Player</EnString><JpString>プレイヤー</JpString></Row>
-<Row><Id>10002</Id><KrString>라이벌 AI</KrString><EnString>AI Rival</EnString><JpString>ライバルAI</JpString></Row>
-<Row><Id>900111</Id><KrString>바위</KrString><EnString>Rock</EnString><JpString>グー</JpString></Row>
-<Row><Id>900112</Id><KrString>가위 속성에 승리합니다.</KrString><EnString>Wins against Scissors.</EnString><JpString>チョキに勝利する。</JpString></Row>
-<Row><Id>900121</Id><KrString>가위</KrString><EnString>Scissors</EnString><JpString>チョキ</JpString></Row>
-<Row><Id>900122</Id><KrString>보 속성에 승리합니다.</KrString><EnString>Wins against Paper.</EnString><JpString>パーに勝利する。</JpString></Row>
-<Row><Id>900131</Id><KrString>보</KrString><EnString>Paper</EnString><JpString>パー</JpString></Row>
-<Row><Id>900132</Id><KrString>바위 속성에 승리합니다.</KrString><EnString>Wins against Rock.</EnString><JpString>グーに勝利する。</JpString></Row>
-<Row><Id>900211</Id><KrString>회복 태세</KrString><EnString>Recovery Stance</EnString><JpString>回復態勢</JpString></Row>
-<Row><Id>900212</Id><KrString>패배 시 피해 대신 체력을 회복합니다.</KrString><EnString>Heals HP instead of taking damage upon loss.</EnString><JpString>敗北時、ダメージの代わりにHPを回復する。</JpString></Row>
-<Row><Id>900221</Id><KrString>광폭화</KrString><EnString>Berserk</EnString><JpString>バーサーク</JpString></Row>
-<Row><Id>900222</Id><KrString>승리 시 2배의 피해를 입히지만 패배 시 받는 피해도 증가합니다.</KrString><EnString>Deals 2x damage on win, but takes extra damage on loss.</EnString><JpString>勝利時2倍のダメージ、敗北時被ダメージ増加。</JpString></Row>
-<Row><Id>900311</Id><KrString>피버 체인</KrString><EnString>Fever Chain</EnString><JpString>フィーバーチェイン</JpString></Row>
-<Row><Id>900312</Id><KrString>체인 수에 따라 피버 게이지가 상승합니다.</KrString><EnString>Charges Fever Gauge based on chain count.</EnString><JpString>チェイン数に応じてフィーバーゲージが上昇。</JpString></Row>
-<Row><Id>900321</Id><KrString>공격력 증가 체인</KrString><EnString>Damage Boost Chain</EnString><JpString>攻撃力アップチェイン</JpString></Row>
-<Row><Id>900322</Id><KrString>체인 수에 따라 기본 공격력이 추가됩니다.</KrString><EnString>Adds bonus damage based on chain count.</EnString><JpString>チェイン数に応じて追加ダメージ。</JpString></Row>
+	<Row>
+		<Id>10001</Id>
+		<DevNote>Text 10001</DevNote>
+		<String_KR>?꾩쟾?? </String_KR>
+		<String_EN>Challenger ?곥깵?с꺍?멥깵??</String_EN>
+		<String_JP></String_JP>
+	</Row>
+	<Row>
+		<Id>10002</Id>
+		<DevNote>Text 10002</DevNote>
+		<String_KR>?쇱씠踰? </String_KR>
+		<String_EN>Rival ?⒲궎?먦꺂
+Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement 900111 諛붿쐞</String_EN>
+		<String_JP>怨듦꺽 Rock</String_JP>
+	</Row>
+	<Row>
+		<Id>900121</Id>
+		<DevNote>Text 900121</DevNote>
+		<String_KR>媛??怨듦꺽</String_KR>
+		<String_EN>Scissors Attack</String_EN>
+		<String_JP>?곥깾??뵽??
+Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
+	</Row>
+	<Row>
+		<Id>900131</Id>
+		<DevNote>Text 900131</DevNote>
+		<String_KR>蹂?怨듦꺽</String_KR>
+		<String_EN>Paper Attack</String_EN>
+		<String_JP>?묆꺖?삥뭴</String_JP>
+	</Row>
+	<Row>
+		<Id>900132</Id>
+		<DevNote>Text 900132</DevNote>
+		<String_KR>蹂??띿꽦 湲곕낯 怨듦꺽?낅땲??</String_KR>
+		<String_EN>Basic Paper attribute attack.</String_EN>
+		<String_JP>?묆꺖掠욄㎯겗?뷸쑍?삥뭴?㎯걲??
+Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
+	</Row>
+	<Row>
+		<Id>900212</Id>
+		<DevNote>Text 900212</DevNote>
+		<String_KR>?⑹뿉???⑤같??寃쎌슦 泥대젰???뚮났?⑸땲??</String_KR>
+		<String_EN>Heals HP when losing a clash.</String_EN>
+		<String_JP>?덀겎?쀥뙒?쀣걼?귙겓HP?믣썮孃⒲걮?얇걲??
+Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
+	</Row>
+	<Row>
+		<Id>900281</Id>
+		<DevNote>Text 900281</DevNote>
+		<String_KR>?</String_KR>
+		<String_EN>Fool</String_EN>
+		<String_JP>?뺛꺖??
+Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
+	</Row>
 </StringTable>

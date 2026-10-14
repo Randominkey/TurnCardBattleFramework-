@@ -24,12 +24,12 @@ namespace Core.Utils
                 return sprite;
             }
 
-            // 리소스 미비 시 Fallback 처리
+            // 리소스 미비 시 Fallback 처리 (화이트 박스 방지를 위해 투명 처리)
             if (targetImage != null)
             {
                 targetImage.sprite = null;
-                targetImage.color = Color.white;
-                targetImage.gameObject.SetActive(true);
+                targetImage.color = Color.clear;
+                targetImage.gameObject.SetActive(false);
             }
 
             return null;

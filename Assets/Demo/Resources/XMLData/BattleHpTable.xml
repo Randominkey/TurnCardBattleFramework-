@@ -1,5 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <BattleHpTable>
 <Row>
-<Id>1001</Id><DevNote>MaxHp = 50</DevNote><MaxHp>50</MaxHp><SpriteDownHp>50, 30, 15</SpriteDownHp></Row>
+<Id>1001</Id><DevNote>MaxHp = 8</DevNote><MaxHp>8</MaxHp><SpriteDownHp>8, 5, 2</SpriteDownHp></Row>
+<Row>
+<Id>1002</Id><DevNote>MaxHp = 9</DevNote><MaxHp>9</MaxHp><SpriteDownHp>9, 6, 2</SpriteDownHp></Row>
+<Row>
+<Id>1003</Id><DevNote>MaxHp = 10</DevNote><MaxHp>10</MaxHp><SpriteDownHp>10, 7, 3</SpriteDownHp></Row>
+<Row>
+<Id>1004</Id><DevNote>MaxHp = 11</DevNote><MaxHp>11</MaxHp><SpriteDownHp>11, 7, 3</SpriteDownHp></Row>
+<Row>
+<Id>1005</Id><DevNote>MaxHp = 12</DevNote><MaxHp>12</MaxHp><SpriteDownHp>12, 8, 3</SpriteDownHp></Row>
+<Row>
+<Id>1006</Id><DevNote>MaxHp = 13</DevNote><MaxHp>13</MaxHp><SpriteDownHp>13, 9, 3</SpriteDownHp></Row>
+<Row>
+<Id>1007</Id><DevNote>MaxHp = 14</DevNote><MaxHp>14</MaxHp><SpriteDownHp>14, 9, 4</SpriteDownHp></Row>
+<Row>
+<Id>1008</Id><DevNote>MaxHp = 15</DevNote><MaxHp>15</MaxHp><SpriteDownHp>15, 10, 4</SpriteDownHp></Row>
+<Row>
+<Id>1009</Id><DevNote>MaxHp = 16</DevNote><MaxHp>16</MaxHp><SpriteDownHp>16, 11, 4</SpriteDownHp></Row>
+<Row>
+<Id>1010</Id><DevNote>MaxHp = 17</DevNote><MaxHp>17</MaxHp><SpriteDownHp>17, 11, 5</SpriteDownHp></Row>
+<Row>
+<Id>1011</Id><DevNote>MaxHp = 18</DevNote><MaxHp>18</MaxHp><SpriteDownHp>18, 12, 5</SpriteDownHp></Row>
+<Row>
+<Id>1012</Id><DevNote>MaxHp = 19</DevNote><MaxHp>19</MaxHp><SpriteDownHp>19, 13, 5</SpriteDownHp></Row>
+<Row>
+<Id>1013</Id><DevNote>MaxHp = 20</DevNote><MaxHp>20</MaxHp><SpriteDownHp>20, 14, 6</SpriteDownHp></Row>
+<Row>
+<Id>1014</Id><DevNote>MaxHp = 21</DevNote><MaxHp>21</MaxHp><SpriteDownHp>21, 12, 6</SpriteDownHp></Row>
+<Row>
+<Id>1015</Id><DevNote>MaxHp = 22</DevNote><MaxHp>22</MaxHp><SpriteDownHp>22, 13, 6</SpriteDownHp></Row>
+<Row>
+<Id>1016</Id><DevNote>MaxHp = 23</DevNote><MaxHp>23</MaxHp><SpriteDownHp>23, 13, 6</SpriteDownHp></Row>
+<Row>
+<Id>1017</Id><DevNote>MaxHp = 24</DevNote><MaxHp>24</MaxHp><SpriteDownHp>24, 14, 7</SpriteDownHp></Row>
+<Row>
+<Id>1018</Id><DevNote>MaxHp = 25</DevNote><MaxHp>25</MaxHp><SpriteDownHp>25, 15, 7</SpriteDownHp></Row>
+<Row>
+<Id>1019</Id><DevNote>MaxHp = 26</DevNote><MaxHp>26</MaxHp><SpriteDownHp>26, 15, 7</SpriteDownHp></Row>
+<Row>
+<Id>1020</Id><DevNote>MaxHp = 27</DevNote><MaxHp>27</MaxHp><SpriteDownHp>27, 16, 8</SpriteDownHp></Row>
+<Row>
+<Id>1021</Id><DevNote>MaxHp = 28</DevNote><MaxHp>28</MaxHp><SpriteDownHp>28, 16, 8</SpriteDownHp></Row>
+<Row>
+<Id>1022</Id><DevNote>MaxHp = 29</DevNote><MaxHp>29</MaxHp><SpriteDownHp>29, 17, 8</SpriteDownHp></Row>
+<Row>
+<Id>1023</Id><DevNote>MaxHp = 30</DevNote><MaxHp>30</MaxHp><SpriteDownHp>30, 18, 9</SpriteDownHp></Row>
+<Row>
+<Id>1024</Id><DevNote>MaxHp = 31</DevNote><MaxHp>31</MaxHp><SpriteDownHp>31, 18, 9</SpriteDownHp></Row>
+<Row>
+<Id>1025</Id><DevNote>MaxHp = 32</DevNote><MaxHp>32</MaxHp><SpriteDownHp>32, 19, 9</SpriteDownHp></Row>
+<Row>
+<Id>1026</Id><DevNote>MaxHp = 33</DevNote><MaxHp>33</MaxHp><SpriteDownHp>33, 19, 9</SpriteDownHp></Row>
+<Row>
+<Id>1027</Id><DevNote>MaxHp = 34</DevNote><MaxHp>34</MaxHp><SpriteDownHp>34, 20, 10</SpriteDownHp></Row>
+<Row>
+<Id>1028</Id><DevNote>MaxHp = 35</DevNote><MaxHp>35</MaxHp><SpriteDownHp>35, 21, 10</SpriteDownHp></Row>
+<Row>
+<Id>1029</Id><DevNote>MaxHp = 36</DevNote><MaxHp>36</MaxHp><SpriteDownHp>36, 21, 10</SpriteDownHp></Row>
+<Row>
+<Id>1030</Id><DevNote>MaxHp = 37</DevNote><MaxHp>37</MaxHp><SpriteDownHp>37, 22, 11</SpriteDownHp></Row>
+<Row>
+<Id>1031</Id><DevNote>MaxHp = 38</DevNote><MaxHp>38</MaxHp><SpriteDownHp>38, 22, 11</SpriteDownHp></Row>
+<Row>
+<Id>1032</Id><DevNote>MaxHp = 39</DevNote><MaxHp>39</MaxHp><SpriteDownHp>39, 23, 11</SpriteDownHp></Row>
+<Row>
+<Id>1033</Id><DevNote>MaxHp = 40</DevNote><MaxHp>40</MaxHp><SpriteDownHp>40, 24, 12</SpriteDownHp></Row>
+<Row>
+<Id>1034</Id><DevNote>MaxHp = 41</DevNote><MaxHp>41</MaxHp><SpriteDownHp>41, 24, 12</SpriteDownHp></Row>
+<Row>
+<Id>1035</Id><DevNote>MaxHp = 42</DevNote><MaxHp>42</MaxHp><SpriteDownHp>42, 25, 12</SpriteDownHp></Row>
+<Row>
+<Id>1036</Id><DevNote>MaxHp = 43</DevNote><MaxHp>43</MaxHp><SpriteDownHp>43, 25, 12</SpriteDownHp></Row>
+<Row>
+<Id>1037</Id><DevNote>MaxHp = 44</DevNote><MaxHp>44</MaxHp><SpriteDownHp>44, 26, 13</SpriteDownHp></Row>
+<Row>
+<Id>1038</Id><DevNote>MaxHp = 45</DevNote><MaxHp>45</MaxHp><SpriteDownHp>45, 27, 13</SpriteDownHp></Row>
+<Row>
+<Id>1039</Id><DevNote>MaxHp = 46</DevNote><MaxHp>46</MaxHp><SpriteDownHp>46, 27, 13</SpriteDownHp></Row>
+<Row>
+<Id>1040</Id><DevNote>MaxHp = 47</DevNote><MaxHp>47</MaxHp><SpriteDownHp>47, 28, 14</SpriteDownHp></Row>
+<Row>
+<Id>1041</Id><DevNote>MaxHp = 48</DevNote><MaxHp>48</MaxHp><SpriteDownHp>48, 28, 14</SpriteDownHp></Row>
+<Row>
+<Id>1042</Id><DevNote>MaxHp = 49</DevNote><MaxHp>49</MaxHp><SpriteDownHp>49, 29, 14</SpriteDownHp></Row>
+<Row>
+<Id>1043</Id><DevNote>MaxHp = 50</DevNote><MaxHp>50</MaxHp><SpriteDownHp>50, 30, 15</SpriteDownHp></Row>
+<Row>
+<Id>1044</Id><DevNote>MaxHp = 51</DevNote><MaxHp>51</MaxHp><SpriteDownHp>51, 30, 15</SpriteDownHp></Row>
+<Row>
+<Id>1045</Id><DevNote>MaxHp = 52</DevNote><MaxHp>52</MaxHp><SpriteDownHp>52, 31, 15</SpriteDownHp></Row>
+<Row>
+<Id>1046</Id><DevNote>MaxHp = 53</DevNote><MaxHp>53</MaxHp><SpriteDownHp>53, 31, 15</SpriteDownHp></Row>
+<Row>
+<Id>1047</Id><DevNote>MaxHp = 54</DevNote><MaxHp>54</MaxHp><SpriteDownHp>54, 32, 16</SpriteDownHp></Row>
+<Row>
+<Id>1048</Id><DevNote>MaxHp = 55</DevNote><MaxHp>55</MaxHp><SpriteDownHp>55, 33, 16</SpriteDownHp></Row>
+<Row>
+<Id>1049</Id><DevNote>MaxHp = 56</DevNote><MaxHp>56</MaxHp><SpriteDownHp>56, 33, 16</SpriteDownHp></Row>
+<Row>
+<Id>1050</Id><DevNote>MaxHp = 57</DevNote><MaxHp>57</MaxHp><SpriteDownHp>57, 34, 17</SpriteDownHp></Row>
+<Row>
+<Id>1051</Id><DevNote>MaxHp = 58</DevNote><MaxHp>58</MaxHp><SpriteDownHp>58, 34, 17</SpriteDownHp></Row>
+<Row>
+<Id>1052</Id><DevNote>MaxHp = 59</DevNote><MaxHp>59</MaxHp><SpriteDownHp>59, 35, 17</SpriteDownHp></Row>
+<Row>
+<Id>1053</Id><DevNote>MaxHp = 60</DevNote><MaxHp>60</MaxHp><SpriteDownHp>60, 36, 18</SpriteDownHp></Row>
+<Row>
+<Id>1054</Id><DevNote>MaxHp = 61</DevNote><MaxHp>61</MaxHp><SpriteDownHp>61, 36, 18</SpriteDownHp></Row>
+<Row>
+<Id>1055</Id><DevNote>MaxHp = 62</DevNote><MaxHp>62</MaxHp><SpriteDownHp>62, 37, 18</SpriteDownHp></Row>
+<Row>
+<Id>1056</Id><DevNote>MaxHp = 63</DevNote><MaxHp>63</MaxHp><SpriteDownHp>63, 37, 18</SpriteDownHp></Row>
+<Row>
+<Id>1057</Id><DevNote>MaxHp = 64</DevNote><MaxHp>64</MaxHp><SpriteDownHp>64, 38, 19</SpriteDownHp></Row>
+<Row>
+<Id>1058</Id><DevNote>MaxHp = 65</DevNote><MaxHp>65</MaxHp><SpriteDownHp>65, 39, 19</SpriteDownHp></Row>
+<Row>
+<Id>1059</Id><DevNote>MaxHp = 66</DevNote><MaxHp>66</MaxHp><SpriteDownHp>66, 39, 19</SpriteDownHp></Row>
+<Row>
+<Id>1060</Id><DevNote>MaxHp = 67</DevNote><MaxHp>67</MaxHp><SpriteDownHp>67, 40, 20</SpriteDownHp></Row>
+<Row>
+<Id>1061</Id><DevNote>MaxHp = 68</DevNote><MaxHp>68</MaxHp><SpriteDownHp>68, 40, 20</SpriteDownHp></Row>
+<Row>
+<Id>1062</Id><DevNote>MaxHp = 69</DevNote><MaxHp>69</MaxHp><SpriteDownHp>69, 41, 20</SpriteDownHp></Row>
+<Row>
+<Id>1063</Id><DevNote>MaxHp = 70</DevNote><MaxHp>70</MaxHp><SpriteDownHp>70, 45, 25</SpriteDownHp></Row>
 </BattleHpTable>
