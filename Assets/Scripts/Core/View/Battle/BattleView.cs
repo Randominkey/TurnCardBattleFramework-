@@ -414,7 +414,7 @@ namespace Core.View
                     else if (!x.isActive && clashResultText != null)
                     {
                         // 피버 종료 시 스택 관련 텍스트가 떠있다면 즉시 제거
-                        if (clashResultText.text.Contains("FEVER STACK"))
+                        if (!string.IsNullOrEmpty(clashResultText.text) && clashResultText.text.Contains("FEVER STACK"))
                         {
                             clashResultText.DOKill();
                             clashResultText.gameObject.SetActive(false);

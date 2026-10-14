@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25596dab816f7cd41bb31e9ecfb729b8, type: 3}
+  m_Name: BattleProductionData
+  m_EditorClassIdentifier: 
+  entries:
+  - {fileID: 11400000, guid: 3e54fbfc088fee94eb9f62dd38d505e2, type: 2}
+  - {fileID: 11400000, guid: 49fe548e01e48e04d80e02f3087c94f0, type: 2}
+  - {fileID: 11400000, guid: c13954393a01dfd4ca7df894fcf5dcce, type: 2}
+  - {fileID: 11400000, guid: ad4f56916bdb8d44591bcebd86388318, type: 2}
+  - {fileID: 11400000, guid: 3185254be1d8c1541bac25dc657aa76e, type: 2}
+  - {fileID: 11400000, guid: 981cece92486b8e42a1c972cb4d38534, type: 2}
+  - {fileID: 11400000, guid: 102edc0bd4465ff419e0bb117c77d8df, type: 2}
+  - {fileID: 11400000, guid: 13a049589c8ea9548a83c29c5b69a098, type: 2}
+  - {fileID: 11400000, guid: d6f6c6b8a3e665e41b173845245cde45, type: 2}
+  - {fileID: 11400000, guid: 5f57ac85f85fe584ca7510e44f740abf, type: 2}
+  - {fileID: 11400000, guid: 0ed79d300e8c15b4ea2e8153c0cfbd37, type: 2}
+  - {fileID: 11400000, guid: bb050f0faeb272547bbf207bc36ac60b, type: 2}
+  clashMoveDuration: 0.4
+  clashShakeDuration: 0.4
+  clashExitDuration: 0.2
