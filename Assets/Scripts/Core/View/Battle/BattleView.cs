@@ -398,28 +398,38 @@ namespace Core.View
             // [Fever] 피버 스택 표시
             Observable.CombineLatest(model.player.feverStack, model.player.isFeverModeActive, (stack, isActive) => (stack, isActive))
                 .Subscribe(x => {
-                    if (x.isActive && x.stack > 0 && clashResultText != null)
+                    try
                     {
-                        clashResultText.DOKill();
-                        clashResultText.text = $"FEVER STACK: {x.stack}";
-                        clashResultText.gameObject.SetActive(true);
-                        clashResultText.transform.localScale = Vector3.one;
-
-                        // 연출: 팝업 후 1.5초 뒤 페이드 아웃 (자동 제거)
-                        clashResultText.transform.DOScale(0f, 0.4f).SetDelay(1.2f).SetEase(Ease.InBack).OnComplete(() => {
-                            clashResultText.gameObject.SetActive(false);
-                            clashResultText.transform.localScale = Vector3.one;
-                        });
-                    }
-                    else if (!x.isActive && clashResultText != null)
-                    {
-                        // 피버 종료 시 스택 관련 텍스트가 떠있다면 즉시 제거
-                        if (!string.IsNullOrEmpty(clashResultText.text) && clashResultText.text.Contains("FEVER STACK"))
+                        if (x.isActive && x.stack > 0 && clashResultText != null)
                         {
                             clashResultText.DOKill();
-                            clashResultText.gameObject.SetActive(false);
+                            clashResultText.text = $"FEVER STACK: {x.stack}";
+                            clashResultText.gameObject.SetActive(true);
                             clashResultText.transform.localScale = Vector3.one;
+
+                            // 연출: 팝업 후 1.5초 뒤 페이드 아웃 (자동 제거)
+                            clashResultText.transform.DOScale(0f, 0.4f).SetDelay(1.2f).SetEase(Ease.InBack).OnComplete(() => {
+                                if (clashResultText != null)
+                                {
+                                    clashResultText.gameObject.SetActive(false);
+                                    clashResultText.transform.localScale = Vector3.one;
+                                }
+                            });
                         }
+                        else if (!x.isActive && clashResultText != null)
+                        {
+                            // 피버 종료 시 스택 관련 텍스트가 떠있다면 즉시 제거
+                            if (!string.IsNullOrEmpty(clashResultText.text) && clashResultText.text.Contains("FEVER STACK"))
+                            {
+                                clashResultText.DOKill();
+                                clashResultText.gameObject.SetActive(false);
+                                clashResultText.transform.localScale = Vector3.one;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogWarning($"[BattleView] Fever UI update skipped safely: {ex.Message}");
                     }
                 }).AddTo(this);
 

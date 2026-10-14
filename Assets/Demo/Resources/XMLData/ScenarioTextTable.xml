@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ScenarioTextTable>
+	<Row>
+		<Id>1</Id>
+		<KrString>배틀 시작</KrString>
+		<EnString>Battle Start</EnString>
+		<JpString>バトル開始</JpString>
+	</Row>
 </ScenarioTextTable>

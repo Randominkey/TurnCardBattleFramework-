@@ -36,6 +36,7 @@ namespace Demo.Editor
             CopyDirectTable("BattleHpTable.xml");
             CopyDirectTable("GameSetTable.xml");
             GenerateStringTable();
+            GenerateScenarioTextTable();
 
             AssetDatabase.Refresh();
             Debug.Log("<color=green>[DemoTableGenerator] All Demo XML Tables generated successfully with IP-neutral rules!</color>");
@@ -212,6 +213,24 @@ namespace Demo.Editor
             AddString(doc, root, "900222", "자신의 체력을 소모하여 강력한 피해를 입힙니다.", "Consumes own HP to deal heavy damage.", "自身のHPを消費して強力なダメージを与えます。");
             AddString(doc, root, "900281", "풀", "Fool", "フール");
             AddString(doc, root, "900282", "모든 카드에 패배하지만 합을 무효화합니다.", "Loses to all cards but nullifies clashes.", "全てのカードに敗北しますが合を無効化します。");
+
+            SaveXmlWithDeclaration(doc, dstPath);
+            Debug.Log($"[DemoTableGenerator] Generated {dstPath}");
+        }
+
+        private static void GenerateScenarioTextTable()
+        {
+            string dstPath = Path.Combine(DemoXmlDir, "ScenarioTextTable.xml");
+            XmlDocument doc = new XmlDocument();
+            XmlElement root = doc.CreateElement("ScenarioTextTable");
+            doc.AppendChild(root);
+
+            XmlElement row = doc.CreateElement("Row");
+            AppendElem(doc, row, "Id", "1");
+            AppendElem(doc, row, "KrString", "배틀 시작");
+            AppendElem(doc, row, "EnString", "Battle Start");
+            AppendElem(doc, row, "JpString", "バトル開始");
+            root.AppendChild(row);
 
             SaveXmlWithDeclaration(doc, dstPath);
             Debug.Log($"[DemoTableGenerator] Generated {dstPath}");
