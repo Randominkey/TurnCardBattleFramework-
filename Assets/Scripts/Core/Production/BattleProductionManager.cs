@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using Core.Table;
+using TMPro;
 
 namespace Core.View
 {
@@ -85,8 +86,16 @@ namespace Core.View
         public IEnumerator PlayProduction(ProductionType type, CharacterKeyName subKey = CharacterKeyName.None, float? customDuration = null, object data = null)
         {
             var entry = productionData != null ? productionData.GetEntry(type, subKey) : null;
+            GameObject effectObj = GetEffectObject(type, entry);
+
+            // [Fallback] 프리팹이 없거나 결손된 경우(데모 환경/IP 보호): TextMeshPro 기반 뉴트럴 텍스트 연출 실행
+            if (effectObj == null)
+            {
+                yield return PlayFallbackTextProduction(type, data);
+                yield break;
+            }
+
             float duration = customDuration ?? (entry?.duration ?? 2.0f);
-            
             float dimDelay = entry?.dimDelay ?? 0f;
             float highlightDelay = entry?.highlightDelay ?? 0f;
             float spawnDelay = entry?.spawnDelay ?? 0.2f; // 딤드 시작 기준 상대 딜레이
@@ -100,42 +109,34 @@ namespace Core.View
             // 프리팹 스폰 대기 (딤드 시작 후 spawnDelay 만큼 더 대기)
             yield return new WaitForSeconds(dimDelay + spawnDelay);
 
-            // 2. 프리팹 스폰
-            GameObject effectObj = GetEffectObject(type, entry);
-            if (effectObj != null)
+            // 2. 프리팹 스폰 및 재생
+            effectObj.transform.SetParent(productionRoot, false);
+            effectObj.SetActive(true);
+
+            effectObj.transform.DOKill(true); 
+            effectObj.transform.DORewind(); 
+
+            var effectComponent = effectObj.GetComponent<IBattleProductionEffect>();
+            if (effectComponent != null)
             {
-                effectObj.transform.SetParent(productionRoot, false);
-                effectObj.SetActive(true);
-
-                effectObj.transform.DOKill(true); 
-                effectObj.transform.DORewind(); 
-
-                // [New] 인터페이스가 있다면 데이터 전달
-                var effectComponent = effectObj.GetComponent<IBattleProductionEffect>();
-                if (effectComponent != null)
-                {
-                    effectComponent.Setup(data);
-                }
-
-                effectObj.transform.DOPlay();
+                effectComponent.Setup(data);
             }
+
+            effectObj.transform.DOPlay();
 
             // 3. 연출 지속 시간 대기
             yield return new WaitForSeconds(duration);
 
             // 4. 프리팹 정리
-            if (effectObj != null)
+            if (entry != null && entry.usePooling)
             {
-                if (entry != null && entry.usePooling)
-                {
-                    effectObj.SetActive(false);
-                    if (!pool.ContainsKey(type)) pool[type] = new Stack<GameObject>();
-                    pool[type].Push(effectObj);
-                }
-                else
-                {
-                    Destroy(effectObj);
-                }
+                effectObj.SetActive(false);
+                if (!pool.ContainsKey(type)) pool[type] = new Stack<GameObject>();
+                pool[type].Push(effectObj);
+            }
+            else
+            {
+                Destroy(effectObj);
             }
 
             // 5. 정리 (여운 대기 후 해제)
@@ -145,6 +146,121 @@ namespace Core.View
             if (dimmedOverlay != null)
             {
                 yield return dimmedOverlay.DOFade(0f, dimFadeDuration).WaitForCompletion();
+                dimmedOverlay.gameObject.SetActive(false);
+            }
+        }
+
+        private TextMeshProUGUI fallbackTextComponent;
+
+        /// <summary>
+        /// 프리팹이 없는 환경(데모 프로젝트 등)에서 저작권 없이 게임 흐름을 직관적으로 보여주는 TextMeshPro Fallback 연출
+        /// </summary>
+        private IEnumerator PlayFallbackTextProduction(ProductionType type, object data)
+        {
+            if (productionRoot == null) yield break;
+
+            if (fallbackTextComponent == null)
+            {
+                var go = new GameObject("FallbackProductionText", typeof(RectTransform), typeof(TextMeshProUGUI));
+                go.transform.SetParent(productionRoot, false);
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0.5f, 0.5f);
+                rt.anchorMax = new Vector2(0.5f, 0.5f);
+                rt.pivot = new Vector2(0.5f, 0.5f);
+                rt.sizeDelta = new Vector2(800f, 200f);
+                rt.anchoredPosition = Vector2.zero;
+
+                fallbackTextComponent = go.GetComponent<TextMeshProUGUI>();
+                fallbackTextComponent.alignment = TextAlignmentOptions.Center;
+                fallbackTextComponent.fontSize = 72;
+                fallbackTextComponent.fontStyle = FontStyles.Bold;
+                fallbackTextComponent.outlineWidth = 0.25f;
+                fallbackTextComponent.outlineColor = new Color32(0, 0, 0, 255);
+                fallbackTextComponent.raycastTarget = false;
+            }
+
+            // 타입별 텍스트 문구 및 테마 색상 설정
+            string text = "";
+            Color color = Color.white;
+            float duration = 0.7f;
+
+            switch (type)
+            {
+                case ProductionType.BattleStart:
+                    text = "BATTLE START";
+                    color = new Color32(255, 213, 79, 255); // Gold Yellow
+                    duration = 0.8f;
+                    break;
+                case ProductionType.RoundStart:
+                    int round = data is int r ? r : 1;
+                    text = $"ROUND {round}";
+                    color = new Color32(255, 255, 255, 255); // Clean White
+                    duration = 0.6f;
+                    break;
+                case ProductionType.ClashWin:
+                    text = "WIN!";
+                    color = new Color32(0, 230, 118, 255); // Emerald Green
+                    duration = 0.5f;
+                    break;
+                case ProductionType.ClashLose:
+                    text = "LOSE...";
+                    color = new Color32(255, 82, 82, 255); // Coral Red
+                    duration = 0.5f;
+                    break;
+                case ProductionType.ClashDraw:
+                    text = "DRAW";
+                    color = new Color32(255, 179, 0, 255); // Amber Orange
+                    duration = 0.5f;
+                    break;
+                case ProductionType.Victory:
+                    text = "VICTORY!";
+                    color = new Color32(255, 215, 0, 255); // Pure Gold
+                    duration = 1.0f;
+                    break;
+                case ProductionType.Defeat:
+                    text = "DEFEAT";
+                    color = new Color32(176, 190, 197, 255); // Slate Gray
+                    duration = 1.0f;
+                    break;
+                case ProductionType.Fever:
+                    text = "FEVER TIME!";
+                    color = new Color32(255, 64, 129, 255); // Neon Pink
+                    duration = 0.8f;
+                    break;
+                default:
+                    text = type.ToString().ToUpper();
+                    color = new Color32(179, 136, 255, 255); // Soft Purple
+                    duration = 0.5f;
+                    break;
+            }
+
+            fallbackTextComponent.text = text;
+            fallbackTextComponent.color = color;
+            fallbackTextComponent.gameObject.SetActive(true);
+
+            // 가벼운 딤드 연출
+            if (dimmedOverlay != null)
+            {
+                dimmedOverlay.gameObject.SetActive(true);
+                dimmedOverlay.DOFade(0.4f, 0.15f);
+            }
+
+            // 산뜻한 펀치 및 페이드아웃 트윈 (0.6~0.8초)
+            Transform textTr = fallbackTextComponent.transform;
+            textTr.localScale = Vector3.one * 0.5f;
+            Sequence seq = DOTween.Sequence();
+            seq.Append(textTr.DOScale(1.15f, 0.2f).SetEase(Ease.OutBack));
+            seq.Append(textTr.DOScale(1.0f, 0.1f));
+            seq.AppendInterval(duration - 0.45f);
+            seq.Append(fallbackTextComponent.DOFade(0f, 0.15f));
+
+            yield return seq.WaitForCompletion();
+
+            fallbackTextComponent.gameObject.SetActive(false);
+
+            if (dimmedOverlay != null)
+            {
+                yield return dimmedOverlay.DOFade(0f, 0.15f).WaitForCompletion();
                 dimmedOverlay.gameObject.SetActive(false);
             }
         }
