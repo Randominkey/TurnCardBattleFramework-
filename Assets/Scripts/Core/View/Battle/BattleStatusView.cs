@@ -7,6 +7,8 @@ using UniRx;
 using Core.Battle;
 using Core.Table;
 using DG.Tweening;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Core.View
 {
@@ -28,9 +30,6 @@ namespace Core.View
 
         [Header("Chain UI Delegation")]
         [SerializeField] private RectTransform chainUIRoot;
-        [SerializeField] private BaseChainView feverChainPrefab;
-        [SerializeField] private BaseChainView drawDamageChainPrefab;
-        [SerializeField] private BaseChainView rainChainPrefab;
 
         [SerializeField] private Image portraitImage;
 
@@ -98,26 +97,58 @@ namespace Core.View
                 }
             }
 
-            // 4. 체인 UI 동적 생성 및 바인딩
+            // 4. 체인 UI 동적 생성 및 바인딩 (Addressables 기반 우선순위 파이프라인)
             var chainRow = TableManager.Instance.GetTable<ChainTable>().Get(model.tableData.chainId);
             string actionType = chainRow?.action ?? "";
-
-            if (chainUIRoot != null)
-            {
-                BaseChainView prefab = null;
-                if (actionType.Equals("Fever", System.StringComparison.OrdinalIgnoreCase)) prefab = feverChainPrefab;
-                else if (actionType.Equals("DrawDamage", System.StringComparison.OrdinalIgnoreCase)) prefab = drawDamageChainPrefab;
-                else if (actionType.Equals("Rain", System.StringComparison.OrdinalIgnoreCase)) prefab = rainChainPrefab;
-
-                if (prefab != null)
-                {
-                    var chainView = Instantiate(prefab, chainUIRoot);
-                    chainView.Setup(model);
-                }
-            }
+            LoadChainUI(actionType, model);
 
             // 5. 초상화 설정
             LoadPortrait(model.tableData.characterFaceIconName);
+        }
+
+        /// <summary>
+        /// 1순위: 원본 Addressables("ChainUI/{action}")
+        /// 2순위: 데모 Addressables("Demo/ChainUI/{action}")
+        /// </summary>
+        private void LoadChainUI(string actionType, BattleCharacterModel model)
+        {
+            if (chainUIRoot == null || string.IsNullOrEmpty(actionType)) return;
+
+            string primaryKey = $"ChainUI/{actionType}";
+            string fallbackKey = $"Demo/ChainUI/{actionType}";
+
+            // 1순위: 원본 주소 비동기 스폰 시도
+            Addressables.InstantiateAsync(primaryKey, chainUIRoot).Completed += handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
+                {
+                    var chainView = handle.Result.GetComponent<BaseChainView>();
+                    if (chainView != null)
+                    {
+                        chainView.Setup(model);
+                        return;
+                    }
+                }
+
+                // 1순위 실패 시: 핸들 정리 후 2순위 데모 주소 시도
+                if (handle.Result != null) Addressables.ReleaseInstance(handle.Result);
+
+                Addressables.InstantiateAsync(fallbackKey, chainUIRoot).Completed += fallbackHandle =>
+                {
+                    if (fallbackHandle.Status == AsyncOperationStatus.Succeeded && fallbackHandle.Result != null)
+                    {
+                        var chainView = fallbackHandle.Result.GetComponent<BaseChainView>();
+                        if (chainView != null)
+                        {
+                            chainView.Setup(model);
+                            return;
+                        }
+                    }
+
+                    if (fallbackHandle.Result != null) Addressables.ReleaseInstance(fallbackHandle.Result);
+                    Debug.LogWarning($"[BattleStatusView] Chain UI not found for keys: '{primaryKey}' or '{fallbackKey}'");
+                };
+            };
         }
 
         private void UpdateHP(float current, float max, bool instant = false)

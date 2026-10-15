@@ -1,57 +1,227 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <StringTable>
-	<Row>
-		<Id>10001</Id>
-		<DevNote>Text 10001</DevNote>
-		<String_KR>?꾩쟾?? </String_KR>
-		<String_EN>Challenger ?곥깵?с꺍?멥깵??</String_EN>
-		<String_JP></String_JP>
-	</Row>
-	<Row>
-		<Id>10002</Id>
-		<DevNote>Text 10002</DevNote>
-		<String_KR>?쇱씠踰? </String_KR>
-		<String_EN>Rival ?⒲궎?먦꺂
-Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement 900111 諛붿쐞</String_EN>
-		<String_JP>怨듦꺽 Rock</String_JP>
-	</Row>
-	<Row>
-		<Id>900121</Id>
-		<DevNote>Text 900121</DevNote>
-		<String_KR>媛??怨듦꺽</String_KR>
-		<String_EN>Scissors Attack</String_EN>
-		<String_JP>?곥깾??뵽??
-Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
-	</Row>
-	<Row>
-		<Id>900131</Id>
-		<DevNote>Text 900131</DevNote>
-		<String_KR>蹂?怨듦꺽</String_KR>
-		<String_EN>Paper Attack</String_EN>
-		<String_JP>?묆꺖?삥뭴</String_JP>
-	</Row>
-	<Row>
-		<Id>900132</Id>
-		<DevNote>Text 900132</DevNote>
-		<String_KR>蹂??띿꽦 湲곕낯 怨듦꺽?낅땲??</String_KR>
-		<String_EN>Basic Paper attribute attack.</String_EN>
-		<String_JP>?묆꺖掠욄㎯겗?뷸쑍?삥뭴?㎯걲??
-Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
-	</Row>
-	<Row>
-		<Id>900212</Id>
-		<DevNote>Text 900212</DevNote>
-		<String_KR>?⑹뿉???⑤같??寃쎌슦 泥대젰???뚮났?⑸땲??</String_KR>
-		<String_EN>Heals HP when losing a clash.</String_EN>
-		<String_JP>?덀겎?쀥뙒?쀣걼?귙겓HP?믣썮孃⒲걮?얇걲??
-Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
-	</Row>
-	<Row>
-		<Id>900281</Id>
-		<DevNote>Text 900281</DevNote>
-		<String_KR>?</String_KR>
-		<String_EN>Fool</String_EN>
-		<String_JP>?뺛꺖??
-Add-StringRow System.Xml.XmlDocument System.Xml.XmlElement </String_JP>
-	</Row>
+<Row>
+<Id>1</Id><KrString>더미</KrString><EnString>Dummy</EnString><JpString>ダミー</JpString></Row>
+<Row>
+<Id>10000</Id><KrString>네</KrString><EnString>Yes</EnString><JpString>はい</JpString></Row>
+<Row>
+<Id>10001</Id><KrString>아니오</KrString><EnString>No</EnString><JpString>いいえ</JpString></Row>
+<Row>
+<Id>10002</Id><KrString>ON</KrString><EnString>ON</EnString><JpString>ON</JpString></Row>
+<Row>
+<Id>10003</Id><KrString>OFF</KrString><EnString>OFF</EnString><JpString>OFF</JpString></Row>
+<Row>
+<Id>10004</Id><KrString>계속하기</KrString><EnString>Continue</EnString><JpString>つづきから</JpString></Row>
+<Row>
+<Id>10005</Id><KrString>재시작</KrString><EnString>Restart</EnString><JpString>リスタート</JpString></Row>
+<Row>
+<Id>10006</Id><KrString>게임 종료</KrString><EnString>Quit Game</EnString><JpString>ゲーム終了</JpString></Row>
+<Row>
+<Id>10007</Id><KrString>SPECIAL</KrString><EnString>SPECIAL</EnString><JpString>SPECIAL</JpString></Row>
+<Row>
+<Id>10008</Id><KrString>CHAIN</KrString><EnString>CHAIN</EnString><JpString>CHAIN</JpString></Row>
+<Row>
+<Id>10009</Id><KrString>BUFF</KrString><EnString>BUFF</EnString><JpString>BUFF</JpString></Row>
+<Row>
+<Id>10010</Id><KrString>DEBUFF</KrString><EnString>DEBUFF</EnString><JpString>DEBUFF</JpString></Row>
+<Row>
+<Id>10011</Id><KrString>드로우</KrString><EnString>Draw</EnString><JpString>ドロー</JpString></Row>
+<Row>
+<Id>10012</Id><KrString>피버 종료</KrString><EnString>Fever End</EnString><JpString>フィーバー終了</JpString></Row>
+<Row>
+<Id>10013</Id><KrString>결정</KrString><EnString>Confirm</EnString><JpString>決定</JpString></Row>
+<Row>
+<Id>10014</Id><KrString>이전</KrString><EnString>Back</EnString><JpString>もどる</JpString></Row>
+<Row>
+<Id>10015</Id><KrString>다음</KrString><EnString>Next</EnString><JpString>つぎへ</JpString></Row>
+<Row>
+<Id>10016</Id><KrString>닫기</KrString><EnString>Close</EnString><JpString>閉じる</JpString></Row>
+<Row>
+<Id>11000</Id><KrString>게임을 다시 시작하시겠습니까?</KrString><EnString>Restart the game?</EnString><JpString>ゲームをリスタートしますか？</JpString></Row>
+<Row>
+<Id>11001</Id><KrString>게임을 종료하시겠습니까?</KrString><EnString>Quit the game?</EnString><JpString>ゲームを終了しますか？</JpString></Row>
+<Row>
+<Id>11100</Id><KrString>화면 설정</KrString><EnString>Display Settings</EnString><JpString>画面設定</JpString></Row>
+<Row>
+<Id>11101</Id><KrString>화면 모드</KrString><EnString>Screen Mode</EnString><JpString>画面モード</JpString></Row>
+<Row>
+<Id>11102</Id><KrString>해상도</KrString><EnString>Resolution</EnString><JpString>解像度</JpString></Row>
+<Row>
+<Id>11110</Id><KrString>Window</KrString><EnString>Window</EnString><JpString>Window</JpString></Row>
+<Row>
+<Id>11111</Id><KrString>Borderless</KrString><EnString>Borderless</EnString><JpString>Borderless</JpString></Row>
+<Row>
+<Id>11112</Id><KrString>Full</KrString><EnString>Full</EnString><JpString>Full</JpString></Row>
+<Row>
+<Id>11200</Id><KrString>사운드 설정</KrString><EnString>Sound Settings</EnString><JpString>サウンド設定</JpString></Row>
+<Row>
+<Id>11201</Id><KrString>마스터</KrString><EnString>Master</EnString><JpString>マスター</JpString></Row>
+<Row>
+<Id>11202</Id><KrString>BGM</KrString><EnString>BGM</EnString><JpString>BGM</JpString></Row>
+<Row>
+<Id>11203</Id><KrString>FX</KrString><EnString>FX</EnString><JpString>FX</JpString></Row>
+<Row>
+<Id>11204</Id><KrString>Voice</KrString><EnString>Voice</EnString><JpString>ボイス</JpString></Row>
+<Row>
+<Id>11300</Id><KrString>언어 설정</KrString><EnString>Language Settings</EnString><JpString>言語設定</JpString></Row>
+<Row>
+<Id>11301</Id><KrString>언어</KrString><EnString>Language</EnString><JpString>言語</JpString></Row>
+<Row>
+<Id>11310</Id><KrString>한국어</KrString><EnString>한국어</EnString><JpString>한국어</JpString></Row>
+<Row>
+<Id>11311</Id><KrString>English</KrString><EnString>English</EnString><JpString>English</JpString></Row>
+<Row>
+<Id>11312</Id><KrString>日本語</KrString><EnString>日本語</EnString><JpString>日本語</JpString></Row>
+<Row>
+<Id>12001</Id><KrString>상대의 HP를 0으로 만들면 승리!
+플레이어의 HP가 0이 되면 패배!</KrString><EnString>Reduce the opponent's HP to 0 to win!
+If your HP reaches 0, you lose!</EnString><JpString>相手のHPを0にすれば勝利！
+プレイヤーのHPが0になると敗北！</JpString></Row>
+<Row>
+<Id>12002</Id><KrString>카드를 클릭하여 제출해 이기면 데미지를 줄 수 있다. 
+더 많은 카드로 이기면 특별한 체인 효과와 함께 큰 데미지를 준다.</KrString><EnString>Click a card to play it—win the match to deal damage.
+Win with more cards to trigger a special Chain effect and deal big damage.</EnString><JpString>カードをクリックして出し、勝てばダメージを与えられる。
+より多くのカードで勝つと、特別なチェイン効果とともに大ダメージを与える。</JpString></Row>
+<Row>
+<Id>12003</Id><KrString>체인에 따라 Fever 게이지가 증가. 
+Fever 상태가 되면 카드를 1개씩만 낼 수 있다.</KrString><EnString>Chains build up the Fever gauge.
+During Fever, you can only play one card at a time.</EnString><JpString>チェインに応じてFeverゲージが増加。
+Fever状態になると、カードを1枚ずつしか出せない。</JpString></Row>
+<Row>
+<Id>12004</Id><KrString>3연승을 달성하면 엄청난 데미지를 줄 수 있다.
+하지만, 지거나 비기면 연승은 사라진다.</KrString><EnString>Get a 3-win streak to deal massive damage.
+But a loss or draw breaks the streak.</EnString><JpString>3連勝を達成すると大ダメージを与えられる。
+ただし、負けるか引き分けると連勝は途切れる。</JpString></Row>
+<Row>
+<Id>12005</Id><KrString>체인에 따라 '붐' 발동 확률과 데미지가 올라간다. 
+붐은 매 턴 확률에 따라 플레이어를 공격한다.</KrString><EnString>Chains raise the activation rate and damage of "Boom."
+Boom attacks Marine each turn based on chance.</EnString><JpString>チェインに応じて「ブーム」の発動確率とダメージが上昇。
+ブームは毎ターン、確率に応じてマリンを攻撃する。</JpString></Row>
+<Row>
+<Id>12006</Id><KrString>캐릭터마다 가지고 있는 액티브 능력. 
+승리해서 게이지를 올리고 클릭 해 발동한다.</KrString><EnString>An active ability unique to each character.
+Win matches to charge the gauge, then click to activate.</EnString><JpString>キャラクターごとに持つアクティブ能力。
+勝利してゲージを溜め、クリックして発動する。</JpString></Row>
+<Row>
+<Id>12007</Id><KrString>해당 턴에서 지면 오히려 회복한다.</KrString><EnString>If you lose on that turn, you recover HP instead.</EnString><JpString>そのターンで負けると、逆にHPを回復する。</JpString></Row>
+<Row>
+<Id>12008</Id><KrString>플레이어의 카드 일부를 낼 수 없게 막는다.</KrString><EnString>Blocks Marine from playing some of her cards.</EnString><JpString>マリンの一部のカードを出せないようにする。</JpString></Row>
+<Row>
+<Id>100101</Id><KrString>플레이어</KrString><EnString>Player</EnString><JpString>プレイヤー</JpString></Row>
+<Row>
+<Id>100201</Id><KrString>라이벌2</KrString><EnString>Rival2</EnString><JpString>ライバル2</JpString></Row>
+<Row>
+<Id>100301</Id><KrString>라이벌3</KrString><EnString>Rival3</EnString><JpString>ライバル3</JpString></Row>
+<Row>
+<Id>100401</Id><KrString>라이벌4</KrString><EnString>Rival4</EnString><JpString>ライバル4</JpString></Row>
+<Row>
+<Id>100501</Id><KrString>라이벌5</KrString><EnString>Rival5</EnString><JpString>ライバル5</JpString></Row>
+<Row>
+<Id>100601</Id><KrString>라이벌6</KrString><EnString>Rival6</EnString><JpString>ライバル6</JpString></Row>
+<Row>
+<Id>100701</Id><KrString>라이벌1</KrString><EnString>Rival1</EnString><JpString>ライバル1</JpString></Row>
+<Row>
+<Id>100801</Id><KrString>라이벌7</KrString><EnString>Rival7</EnString><JpString>ライバル7</JpString></Row>
+<Row>
+<Id>100901</Id><KrString>라이벌8</KrString><EnString>Rival8</EnString><JpString>ライバル8</JpString></Row>
+<Row>
+<Id>900111</Id><KrString>고백</KrString><EnString>Confess</EnString><JpString>告白</JpString></Row>
+<Row>
+<Id>900112</Id><KrString>고백 설명 스트링</KrString><EnString>[Confess description]</EnString><JpString>[告白の説明テキスト]</JpString></Row>
+<Row>
+<Id>900121</Id><KrString>도발</KrString><EnString>Taunt</EnString><JpString>挑発</JpString></Row>
+<Row>
+<Id>900122</Id><KrString>도발 설명 스트링</KrString><EnString>[Taunt description]</EnString><JpString>[挑発の説明テキスト]</JpString></Row>
+<Row>
+<Id>900131</Id><KrString>유혹</KrString><EnString>Seduce</EnString><JpString>誘惑</JpString></Row>
+<Row>
+<Id>900132</Id><KrString>유혹 설명 스트링</KrString><EnString>[Seduce description]</EnString><JpString>[誘惑の説明テキスト]</JpString></Row>
+<Row>
+<Id>900141</Id><KrString>무시</KrString><EnString>Ignore</EnString><JpString>無視</JpString></Row>
+<Row>
+<Id>900142</Id><KrString>무시 설명 스트링</KrString><EnString>[Ignore description]</EnString><JpString>[無視の説明テキスト]</JpString></Row>
+<Row>
+<Id>900151</Id><KrString>금욕</KrString><EnString>Abstain</EnString><JpString>禁欲</JpString></Row>
+<Row>
+<Id>900152</Id><KrString>금욕 설명 스트링</KrString><EnString>[Abstain description]</EnString><JpString>[禁欲の説明テキスト]</JpString></Row>
+<Row>
+<Id>900161</Id><KrString>거절</KrString><EnString>Reject</EnString><JpString>拒絶</JpString></Row>
+<Row>
+<Id>900162</Id><KrString>거절 설명 스트링</KrString><EnString>[Reject description]</EnString><JpString>[拒絶の説明テキスト]</JpString></Row>
+<Row>
+<Id>900211</Id><KrString>플레이어 특수스킬</KrString><EnString>Player Special Skill</EnString><JpString>プレイヤー特技</JpString></Row>
+<Row>
+<Id>900212</Id><KrString>피격 시, 받는 데미지만큼 HP를 회복합니다.</KrString><EnString>Recovers HP equal to the damage taken when hit.</EnString><JpString>被弾時、受けたダメージ分のHPを回復する。</JpString></Row>
+<Row>
+<Id>900221</Id><KrString>라이벌2 특수스킬</KrString><EnString>Iroha Step!</EnString><JpString>必殺一閃</JpString></Row>
+<Row>
+<Id>900222</Id><KrString>공격 시, 주는 데미지를 2배로 만듭니다.</KrString><EnString>Doubles the damage dealt when attacking.</EnString><JpString>攻撃時、与えるダメージを2倍にする。</JpString></Row>
+<Row>
+<Id>900231</Id><KrString>라이벌3 특수스킬</KrString><EnString>Lucky Me♪</EnString><JpString>フブちゃんラッキー♪</JpString></Row>
+<Row>
+<Id>900232</Id><KrString>라이벌3 특수스킬 설명 스트링</KrString><EnString>[Fubuki special skill description]</EnString><JpString>[フブキの特殊スキル説明テキスト]</JpString></Row>
+<Row>
+<Id>900241</Id><KrString>라이벌4 특수스킬</KrString><EnString>Spanking</EnString><JpString>スパンキング</JpString></Row>
+<Row>
+<Id>900242</Id><KrString>라이벌4 특수스킬 설명 스트링</KrString><EnString>[Lamy special skill description]</EnString><JpString>[ラミィの特殊スキル説明テキスト]</JpString></Row>
+<Row>
+<Id>900251</Id><KrString>라이벌5 특수스킬</KrString><EnString>Not done yet, nie…</EnString><JpString>まだ負けてないにぇ…</JpString></Row>
+<Row>
+<Id>900252</Id><KrString>라이벌5 특수스킬 설명 스트링</KrString><EnString>[Miko special skill description]</EnString><JpString>[ミコの特殊スキル説明テキスト]</JpString></Row>
+<Row>
+<Id>900261</Id><KrString>라이벌6 특수스킬</KrString><EnString>No! No no!</EnString><JpString>イヤ！イヤイヤ！</JpString></Row>
+<Row>
+<Id>900262</Id><KrString>라이벌6 특수스킬 설명 스트링</KrString><EnString>[Kanade special skill description]</EnString><JpString>[カナデの特殊スキル説明テキスト]</JpString></Row>
+<Row>
+<Id>900271</Id><KrString>라이벌7 특수스킬</KrString><EnString>Bunnification Plan!</EnString><JpString>兎化計画！</JpString></Row>
+<Row>
+<Id>900272</Id><KrString>2턴 동안, 상대편 카드 3장을 낼 수없게 만듭니다.</KrString><EnString>For 2 turns, blocks the opponent from playing 3 of their cards.</EnString><JpString>2ターンの間、相手のカードを3枚出せないようにする。</JpString></Row>
+<Row>
+<Id>900311</Id><KrString>피버 타임</KrString><EnString>Fever Time</EnString><JpString>フィーバータイム</JpString></Row>
+<Row>
+<Id>900312</Id><KrString>피버 게이지를 쌓습니다. 피버 게이지가 100 도달 시, 피버 타임을 발동합니다.</KrString><EnString>Builds up the Fever gauge. When the Fever gauge reaches 100, Fever Time activates.</EnString><JpString>Feverゲージを溜める。Feverゲージが100に達すると、フィーバータイムが発動する。</JpString></Row>
+<Row>
+<Id>900321</Id><KrString>라이벌2 체인 이름</KrString><EnString>[Rival2 chain name]</EnString><JpString>[ライバル2 チェイン名]</JpString></Row>
+<Row>
+<Id>900322</Id><KrString>라이벌2 체인 설명</KrString><EnString>[Rival2 chain description]</EnString><JpString>[ライバル2 チェイン説明]</JpString></Row>
+<Row>
+<Id>900331</Id><KrString>라이벌3 체인 이름</KrString><EnString>[Rival3 chain name]</EnString><JpString>[ライバル3 チェイン名]</JpString></Row>
+<Row>
+<Id>900332</Id><KrString>라이벌3 체인 설명</KrString><EnString>[Rival3 chain description]</EnString><JpString>[ライバル3 チェイン説明]</JpString></Row>
+<Row>
+<Id>900341</Id><KrString>라이벌4 체인 이름</KrString><EnString>[Rival4 chain name]</EnString><JpString>[ライバル4 チェイン名]</JpString></Row>
+<Row>
+<Id>900342</Id><KrString>라이벌4 체인 설명</KrString><EnString>[Rival4 chain description]</EnString><JpString>[ライバル4 チェイン説明]</JpString></Row>
+<Row>
+<Id>900351</Id><KrString>라이벌5 체인 이름</KrString><EnString>[Rival5 chain name]</EnString><JpString>[ライバル5 チェイン名]</JpString></Row>
+<Row>
+<Id>900352</Id><KrString>라이벌5 체인 설명</KrString><EnString>[Rival5 chain description]</EnString><JpString>[ライバル5 チェイン説明]</JpString></Row>
+<Row>
+<Id>900361</Id><KrString>라이벌6 체인 이름</KrString><EnString>[Rival6 chain name]</EnString><JpString>[ライバル6 チェイン名]</JpString></Row>
+<Row>
+<Id>900362</Id><KrString>라이벌6 체인 설명</KrString><EnString>[Rival6 chain description]</EnString><JpString>[ライバル6 チェイン説明]</JpString></Row>
+<Row>
+<Id>900371</Id><KrString>붐</KrString><EnString>Boom</EnString><JpString>ブーム</JpString></Row>
+<Row>
+<Id>900372</Id><KrString>상대방이 드로우 시, 일정 확률로 데미지를 줍니다.</KrString><EnString>Deals damage at a set chance when the opponent draws.</EnString><JpString>相手がドローした時、一定確率でダメージを与える。</JpString></Row>
+<Row>
+<Id>900411</Id><KrString>카드 데미지 -1 이름</KrString><EnString>[Card Damage -1 (name)]</EnString><JpString>[カードダメージ-1（名前）]</JpString></Row>
+<Row>
+<Id>900412</Id><KrString>카드 데미지 - 1 설명</KrString><EnString>[Card Damage -1 (description)]</EnString><JpString>[カードダメージ-1（説明）]</JpString></Row>
+<Row>
+<Id>900421</Id><KrString>카드 소각 라운드 1 이름</KrString><EnString>[Card Burn Round 1 (name)]</EnString><JpString>[カード焼却ラウンド1（名前）]</JpString></Row>
+<Row>
+<Id>900422</Id><KrString>카드 소각 라운드 1 설명</KrString><EnString>[Card Burn Round 1 (description)]</EnString><JpString>[カード焼却ラウンド1（説明）]</JpString></Row>
+<Row>
+<Id>900431</Id><KrString>카드 사용 시 데미지 1 이름</KrString><EnString>[Damage on Card Use 1 (name)]</EnString><JpString>[カード使用時ダメージ1（名前）]</JpString></Row>
+<Row>
+<Id>900432</Id><KrString>카드 사용 시 데미지 1 설명</KrString><EnString>[Damage on Card Use 1 (description)]</EnString><JpString>[カード使用時ダメージ1（説明）]</JpString></Row>
+<Row>
+<Id>900441</Id><KrString>카드로 얻는 에너지 -1 이름</KrString><EnString>[Energy from Card -1 (name)]</EnString><JpString>[カード獲得エネルギー-1（名前）]</JpString></Row>
+<Row>
+<Id>900442</Id><KrString>카드로 얻는 에너지 -1 설명</KrString><EnString>[Energy from Card -1 (description)]</EnString><JpString>[カード獲得エネルギー-1（説明）]</JpString></Row>
+<Row>
+<Id>900451</Id><KrString>드로우 시 데미지 이름</KrString><EnString>[Damage on Draw (name)]</EnString><JpString>[ドロー時ダメージ（名前）]</JpString></Row>
+<Row>
+<Id>900452</Id><KrString>드로우 시 데미지 설명</KrString><EnString>[Damage on Draw (description)]</EnString><JpString>[ドロー時ダメージ（説明）]</JpString></Row>
 </StringTable>

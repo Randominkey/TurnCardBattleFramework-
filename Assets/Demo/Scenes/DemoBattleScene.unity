@@ -3758,9 +3758,9 @@ MonoBehaviour:
   - {fileID: 1459065967}
   - {fileID: 1928795776}
   chainUIRoot: {fileID: 1164738615}
-  feverChainPrefab: {fileID: 2275011420652678027, guid: 4ff387a134ddc30489768872c8279f57, type: 3}
-  drawDamageChainPrefab: {fileID: 1884124647252922771, guid: 3031d19a22532f24aba2d8d62377f9c3, type: 3}
-  rainChainPrefab: {fileID: 0}
+  feverChainPrefab: {fileID: 2275011420652678027, guid: 778107a936bab2b4ea68a28ccf93d374, type: 3}
+  drawDamageChainPrefab: {fileID: 1884124647252922771, guid: 328070748981cc14e94139da3f722b31, type: 3}
+  rainChainPrefab: {fileID: 3188128341832582673, guid: 91f751e887de25347a542994b0cc0ecc, type: 3}
   portraitImage: {fileID: 1870986716}
   feedbackTextPrefab: {fileID: 343506251346583875, guid: 16093a28bf355444f80cf590ca578acf, type: 3}
   feedbackRoot: {fileID: 1647491351}
@@ -5643,7 +5643,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1164738615}
   - component: {fileID: 1164738617}
-  - component: {fileID: 1164738616}
   m_Layer: 5
   m_Name: Chain Root
   m_TagString: Untagged
@@ -5671,25 +5670,6 @@ RectTransform:
   m_AnchoredPosition: {x: 80, y: 16}
   m_SizeDelta: {x: -160, y: 32}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &1164738616
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1164738614}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 131ade7dff8252b4f953fefcaf1c4f01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tooltipTrigger: {fileID: 0}
-  feverSlider: {fileID: 1164738617}
-  feverText: {fileID: 0}
-  stackText: {fileID: 0}
-  animDuration: 0.5
-  normalModeObjects: []
-  feverModeObjects: []
 --- !u!114 &1164738617
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8046,9 +8026,9 @@ MonoBehaviour:
   - {fileID: 1346358789773937804}
   - {fileID: 1346358791169137993}
   chainUIRoot: {fileID: 1461334996}
-  feverChainPrefab: {fileID: 2275011420652678027, guid: 4ff387a134ddc30489768872c8279f57, type: 3}
-  drawDamageChainPrefab: {fileID: 1884124647252922771, guid: 3031d19a22532f24aba2d8d62377f9c3, type: 3}
-  rainChainPrefab: {fileID: 0}
+  feverChainPrefab: {fileID: 2275011420652678027, guid: 778107a936bab2b4ea68a28ccf93d374, type: 3}
+  drawDamageChainPrefab: {fileID: 1884124647252922771, guid: 328070748981cc14e94139da3f722b31, type: 3}
+  rainChainPrefab: {fileID: 3188128341832582673, guid: 91f751e887de25347a542994b0cc0ecc, type: 3}
   portraitImage: {fileID: 1088208051}
   feedbackTextPrefab: {fileID: 343506251346583875, guid: 16093a28bf355444f80cf590ca578acf, type: 3}
   feedbackRoot: {fileID: 853280611}

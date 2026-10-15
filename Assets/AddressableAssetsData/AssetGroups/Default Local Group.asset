@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: a7336ec292afb91488c48f3e367971da
+  m_SerializeEntries:
+  - m_GUID: 4ff387a134ddc30489768872c8279f57
+    m_Address: ChainUI/Fever
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 3031d19a22532f24aba2d8d62377f9c3
+    m_Address: ChainUI/DrawDamage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 1fd1b51df71a9b74f9cb9fb51d9d579a
+    m_Address: ChainUI/Rain
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 91f751e887de25347a542994b0cc0ecc
+    m_Address: Demo/ChainUI/Rain
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 778107a936bab2b4ea68a28ccf93d374
+    m_Address: Demo/ChainUI/Fever
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 328070748981cc14e94139da3f722b31
+    m_Address: Demo/ChainUI/DrawDamage
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 2904d398495d8ce4aab455fb289a9da2, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: c6288a8396aca914da97c92e9c5bd6fa, type: 2}
+    - {fileID: 11400000, guid: ab204af035c1d12478ec984b65bdc7f5, type: 2}
