@@ -347,7 +347,7 @@ namespace Core.View
                 if (ctx.clashResultText != null)
                 {
                     ctx.clashResultText.gameObject.SetActive(true);
-                    ctx.clashResultText.text = $"🎲 <color=#FFFF00>ROLLING DICE...</color>";
+                    ctx.clashResultText.text = $"<color=#FFFF00>[ROLLING DICE...]</color>";
                 }
                 Core.Audio.SoundManager.Instance?.PlaySe("UI_Submit_Click");
             }));
@@ -357,7 +357,7 @@ namespace Core.View
                 float effectValue = winnerModel.lastDiceRollValue.Value;
                 if (ctx.clashResultText != null)
                 {
-                    ctx.clashResultText.text = $"🎲 <color=#FFFF00>DICE: {diceEye}!</color>\n<size=70%>대미지/회복 +{(int)effectValue}</size>";
+                    ctx.clashResultText.text = $"<color=#FFFF00>[DICE: {diceEye}!]</color>\n<size=70%>대미지/회복 +{(int)effectValue}</size>";
                 }
                 Core.Audio.SoundManager.Instance?.PlaySe("Battle_Hit");
             }));
@@ -372,7 +372,7 @@ namespace Core.View
             if (ctx.clashResultText != null)
             {
                 ctx.clashResultText.gameObject.SetActive(true);
-                ctx.clashResultText.text = $"<color=#00FFFF>🎲 [DICE ROLL CHAIN]</color>\n피해 {(int)effectValue} / 회복 {(int)effectValue}";
+                ctx.clashResultText.text = $"<color=#00FFFF>[DICE ROLL CHAIN]</color>\n피해 {(int)effectValue} / 회복 {(int)effectValue}";
             }
 
             bool isUserPlayer = (battleModel != null && user == battleModel.player);

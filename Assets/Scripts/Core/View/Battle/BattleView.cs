@@ -64,6 +64,10 @@ namespace Core.View
         [Tooltip("무메이의 문명 아이콘 스프라이트 (선택 사항, 미할당 시 기존 스프라이트 유지)")]
         [SerializeField] private Sprite mumeiCivilizationSprite;
 
+        [Header("Question UI")]
+        [Tooltip("질문(NPC 다음 행동 힌트) 전용 뷰 (미할당 시 런타임에 자동 구성)")]
+        [SerializeField] private BattleQuestionView questionView;
+
         // --- Tutorial Support ---
         public BattleStatusView PlayerStatus => playerStatus;
         public BattleStatusView EnemyStatus => enemyStatus;
@@ -79,6 +83,7 @@ namespace Core.View
         public RectTransform PlayerFigure => playerFigure;
         public RectTransform EnemyFigure => enemyFigure;
         public BattleProductionManager ProductionManager => productionManager; // 연출 매니저 접근용
+        public BattleQuestionView QuestionView => questionView;
         // ------------------------
 
         [SerializeField] private Image flashOverlay; // 피격 시 화면 번쩍임용 이미지
@@ -103,11 +108,36 @@ namespace Core.View
         private BattleCombatPresenter combatPresenter;
         private BattleHandPresenter handPresenter;
 
-        public BattleCombatPresenter CombatPresenter => combatPresenter;
-        public BattleHandPresenter HandPresenter => handPresenter;
+        private bool isViewInitialized = false;
+
+        public BattleCombatPresenter CombatPresenter
+        {
+            get
+            {
+                EnsureInitialized();
+                return combatPresenter;
+            }
+        }
+
+        public BattleHandPresenter HandPresenter
+        {
+            get
+            {
+                EnsureInitialized();
+                return handPresenter;
+            }
+        }
 
         private void Awake()
         {
+            EnsureInitialized();
+        }
+
+        private void EnsureInitialized()
+        {
+            if (isViewInitialized) return;
+            isViewInitialized = true;
+
             InitializeUIState(); // [New] 시작 시 UI 숨김
 
             combatPresenter = new BattleCombatPresenter(new BattleCombatContext
@@ -154,6 +184,9 @@ namespace Core.View
                     if (battleModel != null && battleModel.player.isFeverModeActive.Value)
                     {
                         // 피버 종료 버튼으로 동작
+                        if (drawSfx != null) Core.Audio.SoundManager.Instance.PlaySe(drawSfx);
+                        else Core.Audio.SoundManager.Instance.PlaySe("UI_Draw_Click");
+
                         OnClickEndFever();
                     }
                     else
@@ -191,6 +224,20 @@ namespace Core.View
             {
                 TooltipManager.Instance.Setup(tooltipPrefab, tooltipRoot != null ? tooltipRoot : this.transform);
             }
+
+            // [New 261103] 질문(Question) UI 초기화
+            if (questionView == null)
+            {
+                questionView = GetComponentInChildren<BattleQuestionView>(true);
+                if (questionView == null)
+                {
+                    questionView = gameObject.AddComponent<BattleQuestionView>();
+                }
+            }
+
+            Transform uiRoot = inGameUIGroup != null ? inGameUIGroup.transform : (rootCanvasGroup != null ? rootCanvasGroup.transform : this.transform);
+            TMP_FontAsset refFont = clashResultText != null ? clashResultText.font : (roundText != null ? roundText.font : null);
+            questionView.Initialize(uiRoot, playerFigure, enemyFigure, refFont);
         }
 
         private void Start()
@@ -199,21 +246,11 @@ namespace Core.View
         }
 
         /// <summary>
-        /// 라운드가 전환될 때 (Round End -> Round Start) 실행되는 간략한 시각적 효과
+        /// 라운드가 전환될 때 (Round End -> Round Start) 실행되는 간략한 시각적 효과 (연출 제거: 즉시 콜백 완료)
         /// </summary>
         public void PlayRoundTransition(Action onComplete)
         {
-            if (rootCanvasGroup == null)
-            {
-                onComplete?.Invoke();
-                return;
-            }
-
-            // 간략하게 화면을 깜빡이는 연출 (나중에 특수 연출로 보강 가능)
-            Sequence seq = DOTween.Sequence();
-            seq.Append(rootCanvasGroup.DOFade(0.3f, 0.2f));
-            seq.Append(rootCanvasGroup.DOFade(1.0f, 0.2f));
-            seq.OnComplete(() => onComplete?.Invoke());
+            onComplete?.Invoke();
         }
 
         public void ShowWarningMessage(string message)
@@ -319,6 +356,8 @@ namespace Core.View
 
         public void Bind(BattleModel model)
         {
+            EnsureInitialized();
+
             this.battleModel = model;
 
             // 상태창 바인딩 (HP, 게이지, 이름 등은 BattleStatusView에서 처리)
@@ -329,19 +368,29 @@ namespace Core.View
             SetupCharacterFigure(playerFigure, model.player);
             SetupCharacterFigure(enemyFigure, model.enemy);
             
-            model.currentRound.Subscribe(round => {
-                if (roundText != null) roundText.text = $"ROUND {round}";
-            }).AddTo(this);
-            if (limitRoundText != null) limitRoundText.text = model.battleTable.limitRound.ToString();
+            // [Round UI 제거] limit round가 지나도 특별한 이벤트가 없으므로 라운드 텍스트 바인딩 및 표기 제거
+            // if (roundText != null) roundText.gameObject.SetActive(false);
+            // if (limitRoundText != null) limitRoundText.gameObject.SetActive(false);
 
             // [New 261013] 환경 변화 요소 아이콘 및 툴팁 바인딩
             model.currentEnvironment.Subscribe(env => {
                 SetupEnvironmentIcon(env);
-                if (env == EnvironmentType.IrysHope && drawButton != null)
-                {
-                    drawButton.interactable = false;
-                }
             }).AddTo(this);
+
+            // [Draw Button Interactable 통합 바인딩 (대안 A)]
+            // 피버 모드일 때는 항상 상호작용 활성화 (Fever End 기능 수행)
+            // 피버 모드가 아닐 때는 모델의 canDrawCard 평가 값에 따라 활성화 (IrysHope, 풀핸드, 디버프 등 통합 대응)
+            if (drawButton != null)
+            {
+                Observable.CombineLatest(
+                    model.player.isFeverModeActive,
+                    model.player.canDrawCard,
+                    (isFever, canDraw) => isFever || canDraw
+                ).DistinctUntilChanged()
+                 .Subscribe(canInteract => {
+                     drawButton.interactable = canInteract;
+                 }).AddTo(this);
+            }
 
             // 플레이어 게이지 및 피버 상태 구독
             if (specialSkillButton != null)
@@ -435,6 +484,9 @@ namespace Core.View
 
             // [New] 핸드 바인딩 (플레이어 & 적)
             handPresenter.Bind(model);
+
+            // [New 261103] 질문(Question) UI 바인딩 (배틀 시작/재시작 시 4개 버튼 전체 활성화)
+            questionView?.Bind(model);
         }
 
         /// <summary>
@@ -446,10 +498,11 @@ namespace Core.View
             if (rootCanvasGroup != null)
             {
                 rootCanvasGroup.blocksRaycasts = enabled;
-                // 인터랙션이 꺼질 때 호버 연출 등을 초기화하기 위해 사용 가능
-                if (!enabled && handPresenter != null)
+                // 인터랙션이 꺼질 때 호버 연출 및 질문 말풍선(클래시 직전)을 초기화
+                if (!enabled)
                 {
-                    handPresenter.ResetPlayerVisualStates();
+                    handPresenter?.ResetPlayerVisualStates();
+                    questionView?.HideAllForClash();
                 }
             }
         }
@@ -496,6 +549,13 @@ namespace Core.View
 
         public void ShowBattleResult(bool isWin, Action onComplete)
         {
+            // [Victory / Defeat] 프로덕션 매니저를 통한 전용 결과 화면 프리팹(Result Win / Result Lose) 출력
+            if (productionManager != null)
+            {
+                StartCoroutine(PlayResultProductionRoutine(isWin, onComplete));
+                return;
+            }
+
             if (clashResultText == null)
             {
                 onComplete?.Invoke();
@@ -512,6 +572,13 @@ namespace Core.View
             seq.OnComplete(() => {
                 onComplete?.Invoke();
             });
+        }
+
+        private IEnumerator PlayResultProductionRoutine(bool isWin, Action onComplete)
+        {
+            var pType = isWin ? ProductionType.Victory : ProductionType.Defeat;
+            yield return productionManager.PlayProduction(pType);
+            onComplete?.Invoke();
         }
 
         /// <summary>
@@ -624,6 +691,9 @@ namespace Core.View
 
         public void SlideOutHands(float duration, Action onComplete)
         {
+            // 카드 제출 후 클래시 애니메이션으로 넘어가기 직전 질문 말풍선/모달 정리
+            questionView?.HideAllForClash();
+
             // UI 슬라이드 아웃 연출
             if (playerHandArea != null) playerHandArea.DOAnchorPosY(-slideOffset, duration).SetEase(Ease.InCubic);
             if (enemyHandArea != null) enemyHandArea.DOAnchorPosY(slideOffset, duration).SetEase(Ease.InCubic);
@@ -649,5 +719,124 @@ namespace Core.View
             }
             return null;
         }
+
+        #region [Debug Cheat] NPC Next Move Banner (` 키 토글)
+        private GameObject cheatBannerRoot;
+        private TextMeshProUGUI cheatBannerText;
+        private bool isCheatBannerActive = false;
+
+        private void Update()
+        {
+            // ` (BackQuote / 틸드) 키 입력 시 치트 배너 토글
+            if (Input.GetKeyDown(KeyCode.BackQuote))
+            {
+                ToggleNpcMoveCheatBanner();
+            }
+        }
+
+        /// <summary>
+        /// ` 키를 눌러 상대 NPC의 의사결정(제출 카드 또는 드로우) 미리보기 배너를 토글합니다.
+        /// </summary>
+        public void ToggleNpcMoveCheatBanner()
+        {
+            isCheatBannerActive = !isCheatBannerActive;
+            EnsureCheatBannerUI();
+
+            if (cheatBannerRoot != null)
+            {
+                cheatBannerRoot.SetActive(isCheatBannerActive);
+            }
+
+            if (isCheatBannerActive)
+            {
+                RefreshNpcMoveCheatBanner();
+                Debug.Log("[Cheat] NPC Move Preview Banner ON");
+            }
+            else
+            {
+                Debug.Log("[Cheat] NPC Move Preview Banner OFF");
+            }
+        }
+
+        /// <summary>
+        /// 현재 라운드에 NPC가 결정한 수(제출 카드 및 디버프 상태 or 드로우)를 배너에 표시합니다.
+        /// </summary>
+        public void RefreshNpcMoveCheatBanner()
+        {
+            if (!isCheatBannerActive) return;
+            EnsureCheatBannerUI();
+            if (cheatBannerText == null) return;
+
+            if (battleModel == null)
+            {
+                cheatBannerText.text = "<color=#AAAAAA>[NPC MOVE] BattleModel not bound.</color>";
+                return;
+            }
+
+            if (battleModel.enemyChoseDraw)
+            {
+                cheatBannerText.text = "<color=#FFD700>[NPC MOVE]</color> 📥 <b>Action: DRAW CARD</b>";
+            }
+            else if (battleModel.enemySelectedCards != null && battleModel.enemySelectedCards.Count > 0)
+            {
+                var cardDescriptions = battleModel.enemySelectedCards.Select(c =>
+                {
+                    string elem = c.EffectiveElement.ToString();
+                    string debuffs = "";
+                    if (c.BombStack > 0) debuffs += $" 💣x{c.BombStack}";
+                    if (c.IsRain) debuffs += " 🌧️";
+                    if (c.IsLava) debuffs += " 🌋";
+                    if (c.IsBroken) debuffs += " ❌Broken";
+                    return $"<b>[{elem}{debuffs}]</b>";
+                });
+
+                string chainStr = battleModel.enemySelectedCards.Count >= 2 ? $" ({battleModel.enemySelectedCards.Count}체인)" : "";
+                cheatBannerText.text = $"<color=#FFD700>[NPC MOVE]</color> ⚔️ <b>SUBMIT {battleModel.enemySelectedCards.Count}장{chainStr}:</b> {string.Join("  ", cardDescriptions)}";
+            }
+            else
+            {
+                cheatBannerText.text = "<color=#AAAAAA>[NPC MOVE] 라운드 의사결정 대기 중...</color>";
+            }
+        }
+
+        private void EnsureCheatBannerUI()
+        {
+            if (cheatBannerRoot != null) return;
+
+            // Canvas Transform 하위에 최상단 오버레이로 생성
+            Transform parentTransform = inGameUIGroup != null ? inGameUIGroup.transform : (rootCanvasGroup != null ? rootCanvasGroup.transform : transform);
+
+            var bannerGo = new GameObject("[Cheat] NPC_Move_Banner");
+            bannerGo.transform.SetParent(parentTransform, false);
+
+            var rect = bannerGo.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 1f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = new Vector2(0, -12);
+            rect.sizeDelta = new Vector2(750, 42);
+
+            var img = bannerGo.AddComponent<Image>();
+            img.color = new Color(0.08f, 0.08f, 0.12f, 0.92f); // 짙은 네이비 반투명 배경
+            img.raycastTarget = false;
+
+            var textGo = new GameObject("Text");
+            textGo.transform.SetParent(bannerGo.transform, false);
+            var textRect = textGo.AddComponent<RectTransform>();
+            textRect.anchorMin = Vector2.zero;
+            textRect.anchorMax = Vector2.one;
+            textRect.offsetMin = new Vector2(16, 0);
+            textRect.offsetMax = new Vector2(-16, 0);
+
+            cheatBannerText = textGo.AddComponent<TextMeshProUGUI>();
+            cheatBannerText.alignment = TextAlignmentOptions.Center;
+            cheatBannerText.fontSize = 16;
+            cheatBannerText.color = Color.white;
+            cheatBannerText.raycastTarget = false;
+
+            cheatBannerRoot = bannerGo;
+            cheatBannerRoot.SetActive(isCheatBannerActive);
+        }
+        #endregion
     }
 }

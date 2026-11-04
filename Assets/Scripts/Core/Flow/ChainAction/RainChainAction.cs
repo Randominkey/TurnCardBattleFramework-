@@ -51,15 +51,15 @@ namespace Core.Flow.ChainAction
             {
                 charModel.ActivateRainTime();
 
-                // 1. 코보 상대방의 손패 전체 삭제
-                var cardsToRemove = opponent.hand.ToList();
-                foreach (var card in cardsToRemove)
+                // 1. 코보 상대방의 기존 모든 손패를 Fool 카드로 강제 변환
+                var foolSkillRow = GetFoolSkillRow(charModel);
+                foreach (var card in opponent.hand)
                 {
-                    opponent.hand.Remove(card);
+                    card.ConvertToFool(foolSkillRow);
                 }
 
-                // 2. 상대방의 특수 스킬 1라운드간 봉쇄
-                opponent.BlockSpecialSkill(1);
+                // 2. 상대방의 특수 스킬 봉쇄 (RainTime 동안 특수 스킬 사용 불가)
+                opponent.BlockSpecialSkill(99);
 
                 // 3. RainStack 초기화
                 charModel.rainStack.Value = 0;
@@ -70,7 +70,7 @@ namespace Core.Flow.ChainAction
                     ctx.battleView.ShowWarningMessage("RAIN TIME!");
                 }
 
-                Debug.Log($"[Chain: RainTime] {charModel.tableData.id} triggered RainTime! Cleared {opponent.tableData.id}'s entire hand.");
+                Debug.Log($"[Chain: RainTime] {charModel.tableData.id} triggered RainTime! Converted {opponent.tableData.id}'s cards to Fool.");
             }
         }
 

@@ -24,12 +24,21 @@ namespace Core.Flow.SpecialSkill
             for (int i = 0; i < opponent.hand.Count; i++)
             {
                 var card = opponent.hand[i];
-                if (card.IsFool) continue;
+                if (card == null) continue;
+
+                // Rock, Scissors, Paper 기본 속성 카드만 교체 (Fool 등 특수 속성은 보존)
+                var elem = card.EffectiveElement;
+                if (elem != SkillElement.Rock && elem != SkillElement.Scissors && elem != SkillElement.Paper)
+                {
+                    continue;
+                }
 
                 int randomIdx = Random.Range(0, opponentSkillIds.Length);
                 int skillId = opponentSkillIds[randomIdx];
-                var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(skillId);
-                opponent.hand[i] = new CardInstance(skillRow);
+                var skillRow = TableManager.Instance.GetTable<SkillTable>()?.Get(skillId);
+                
+                // [Fix] 인스턴스 교체(new CardInstance) 대신 기존 인스턴스의 스킬 속성을 갱신하여 인스턴스 일관성 및 디버프 상태 유지
+                card.RerollSkill(skillRow);
             }
 
             if (context.BattleView != null)
@@ -37,7 +46,7 @@ namespace Core.Flow.SpecialSkill
                 context.BattleView.RefreshHandVisuals();
             }
 
-            Debug.Log($"[Special: MixReload] {user.tableData.id} rerolled {opponent.tableData.id}'s hand (excluding Fools).");
+            Debug.Log($"[Special: MixReload] {user.tableData.id} rerolled {opponent.tableData.id}'s RPS cards in place.");
         }
     }
 }

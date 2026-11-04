@@ -49,6 +49,42 @@ namespace Core.Flow
             ExecuteCurrentStep();
         }
 
+        public void PreviousStep()
+        {
+            currentStepIndex = Mathf.Max(0, currentStepIndex - 1);
+            ExecuteCurrentStep();
+        }
+
+        /// <summary>
+        /// 특정 스텝 인덱스로 즉시 이동합니다.
+        /// </summary>
+        public void JumpToStep(int stepIndex)
+        {
+            if (currentModeRow == null) return;
+            currentStepIndex = Mathf.Clamp(stepIndex, 0, currentModeRow.ExecuteIds.Length - 1);
+            Debug.Log($"[Flow] Jump to Step Index: {currentStepIndex}");
+            ExecuteCurrentStep();
+        }
+
+        /// <summary>
+        /// 특정 ExecuteId(예: 1005번 미코 전투, 220번 코보 대화 등)가 있는 스텝으로 즉시 점프합니다.
+        /// </summary>
+        public bool JumpToExecuteId(int targetExecuteId)
+        {
+            if (currentModeRow == null) return false;
+            for (int i = 0; i < currentModeRow.ExecuteIds.Length; i++)
+            {
+                if (currentModeRow.ExecuteIds[i] == targetExecuteId)
+                {
+                    Debug.Log($"[Flow] Found ExecuteId {targetExecuteId} at step {i}. Jumping...");
+                    JumpToStep(i);
+                    return true;
+                }
+            }
+            Debug.LogWarning($"[Flow] ExecuteId {targetExecuteId} not found in current ModeFlow (ID: {currentModeFlowId}).");
+            return false;
+        }
+
         private void ExecuteCurrentStep()
         {
             if (currentModeRow == null || currentStepIndex >= currentModeRow.ExecuteIds.Length)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Core.Battle;
 using Core.Table;
@@ -18,6 +19,8 @@ namespace Core.Flow
         public float PlayerGauge { get; set; }
         public float EnemyGauge { get; set; }
         public float RoundDamage { get; set; }
+        public float PlayerBombSelfDamage { get; set; }
+        public float EnemyBombSelfDamage { get; set; }
         public Action ApplyResults { get; set; }
         public Action ApplyAttackWinChain { get; set; }
         public ProductionCommand SuccessCommand { get; set; }
@@ -102,6 +105,10 @@ namespace Core.Flow
                 eGauge *= 2.0f;
             }
 
+            // [New 261026] 폭탄(Bomb) 제출 카드 자해 데미지 계산 (방안 B: 승패 데미지와 독립 처리)
+            float pBombSelfDamage = battleModel.playerSelectedCards != null ? battleModel.playerSelectedCards.Sum(c => c.TotalBombDamage) : 0f;
+            float eBombSelfDamage = battleModel.enemySelectedCards != null ? battleModel.enemySelectedCards.Sum(c => c.TotalBombDamage) : 0f;
+
             // 7. 결과 적용 콜백 (Apply Results)
             Action applyResults = () => {
                 if (pDamage > 0)
@@ -122,6 +129,18 @@ namespace Core.Flow
                         battleModel.enemy.Heal(eDamage);
                     }
                     else battleModel.enemy.TakeDamage(eDamage);
+                }
+
+                // [New 261026] 폭탄(Bomb) 자해 데미지 적용 (승패 판정/LoseHeal과 독립적으로 피격)
+                if (pBombSelfDamage > 0)
+                {
+                    Debug.Log($"[Chain: Bomb] Player took self-damage from submitted bombs: {pBombSelfDamage}");
+                    battleModel.player.TakeDamage(pBombSelfDamage);
+                }
+                if (eBombSelfDamage > 0)
+                {
+                    Debug.Log($"[Chain: Bomb] Enemy took self-damage from submitted bombs: {eBombSelfDamage}");
+                    battleModel.enemy.TakeDamage(eBombSelfDamage);
                 }
 
                 if (pGauge > 0) battleModel.player.AddGauge(pGauge);
@@ -161,6 +180,8 @@ namespace Core.Flow
                 PlayerGauge = pGauge,
                 EnemyGauge = eGauge,
                 RoundDamage = roundDamage,
+                PlayerBombSelfDamage = pBombSelfDamage,
+                EnemyBombSelfDamage = eBombSelfDamage,
                 ApplyResults = applyResults,
                 ApplyAttackWinChain = applyAttackWinChain,
                 SuccessCommand = successCmd

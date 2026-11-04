@@ -13,13 +13,12 @@ namespace Core.Common
         public const int STR_ID_SUBHEADER_SPECIAL_SKILL = 10007; 
         public const int STR_ID_SUBHEADER_CHAIN_SKILL = 10008; 
 
-        // 튜토리얼 스테이지 ID 범위 (1001 ~ 1099)
-        public const int TUTORIAL_STAGE_START_ID = 1000;
-        public const int TUTORIAL_STAGE_END_ID = 1100;
+        // 첫 번째 스테이지(이로하)만 기본 조작 튜토리얼 진행 (1002)
+        public const int TUTORIAL_STAGE_ID = 1002;
 
         /// <summary>
-        /// 주어진 스테이지(Execute) ID가 튜토리얼 범위에 속하는지 여부
+        /// 주어진 스테이지(Execute) ID가 기본 튜토리얼 스테이지(이로하전)인지 여부
         /// </summary>
-        public static bool IsTutorialStage(int executeId) => executeId >= TUTORIAL_STAGE_START_ID && executeId < TUTORIAL_STAGE_END_ID;
+        public static bool IsTutorialStage(int executeId) => executeId == TUTORIAL_STAGE_ID;
     }
 }

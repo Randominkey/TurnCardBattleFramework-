@@ -57,8 +57,16 @@ namespace Core.Flow
                 {
                     for (int i = 0; i < drawCount; i++)
                     {
-                        if (battleModel.player.hand.Count < maxCards) DrawRandomCard(battleModel.player);
-                        if (battleModel.enemy.hand.Count < maxCards) DrawRandomCard(battleModel.enemy);
+                        // 피버 모드 진행 중인 캐릭터는 라운드 승리 시 피버 보충 카드를 이미 지급받으므로 정기 드로우 생략 (1회만 보충 보장)
+                        if (!battleModel.player.isFeverModeActive.Value && battleModel.player.hand.Count < maxCards)
+                        {
+                            DrawRandomCard(battleModel.player);
+                        }
+
+                        if (!battleModel.enemy.isFeverModeActive.Value && battleModel.enemy.hand.Count < maxCards)
+                        {
+                            DrawRandomCard(battleModel.enemy);
+                        }
                     }
                 }
             }
@@ -117,8 +125,9 @@ namespace Core.Flow
             CardInstance newCard = null;
             int currentRound = battleModel.currentRound.Value;
 
-            // 튜토리얼 지정 드로우 확인
-            if (tutorialScriptController != null && tutorialScriptController.IsApplicable(executeId, currentRound))
+            // 튜토리얼 지정 드로우 확인 (단, 아이리스 풀핸드 환경에서는 동일 카드 도배 방지를 위해 각 장마다 독립 무작위 추첨)
+            bool isIrysHope = (battleModel.currentEnvironment.Value == EnvironmentType.IrysHope);
+            if (!isIrysHope && tutorialScriptController != null && tutorialScriptController.IsApplicable(executeId, currentRound))
             {
                 bool isPlayer = (model == battleModel.player);
                 newCard = tutorialScriptController.GetScriptedDrawCard(isPlayer, currentRound, PlayerFirstRoundElement);
@@ -137,17 +146,24 @@ namespace Core.Flow
                 }
                 else
                 {
-                    int randomIdx = UnityEngine.Random.Range(0, model.tableData.SkillIds.Length);
-                    int skillId = model.tableData.SkillIds[randomIdx];
-                    var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(skillId);
-                    newCard = new CardInstance(skillRow);
+                    // 보유 스킬 목록(바위, 가위, 보 등) 중 매 드로우마다 독립 무작위 추첨
+                    if (model.tableData.SkillIds != null && model.tableData.SkillIds.Length > 0)
+                    {
+                        int randomIdx = UnityEngine.Random.Range(0, model.tableData.SkillIds.Length);
+                        int skillId = model.tableData.SkillIds[randomIdx];
+                        var skillRow = TableManager.Instance.GetTable<SkillTable>().Get(skillId);
+                        newCard = new CardInstance(skillRow);
+                    }
                 }
             }
 
-            model.hand.Add(newCard);
+            if (newCard != null)
+            {
+                model.hand.Add(newCard);
 
-            // [체인 타이밍 1] 라운드 플로우 - 드로우 체인 효과 발동
-            chainHandler?.OnDraw(model);
+                // [체인 타이밍 1] 라운드 플로우 - 드로우 체인 효과 발동
+                chainHandler?.OnDraw(model);
+            }
 
             return newCard;
         }

@@ -113,6 +113,24 @@ namespace Core.View
             effectObj.transform.SetParent(productionRoot, false);
             effectObj.SetActive(true);
 
+            var rectTransform = effectObj.GetComponent<RectTransform>();
+            if (rectTransform != null)
+            {
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
+                rectTransform.localScale = Vector3.one;
+                rectTransform.localPosition = Vector3.zero;
+            }
+
+            // [Fix] 결과 창 등 Canvas 기반 프리팹의 worldCamera가 누락된 경우 Main Camera 연결
+            var canvas = effectObj.GetComponent<Canvas>() ?? effectObj.GetComponentInChildren<Canvas>();
+            if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null)
+            {
+                canvas.worldCamera = Camera.main;
+            }
+
             effectObj.transform.DOKill(true); 
             effectObj.transform.DORewind(); 
 
@@ -122,7 +140,25 @@ namespace Core.View
                 effectComponent.Setup(data);
             }
 
+            // [Animator 지원] Animator 컴포넌트가 존재할 경우 첫 번째 상태부터 명시적 재생
+            var animators = effectObj.GetComponentsInChildren<Animator>(true);
+            foreach (var anim in animators)
+            {
+                if (anim != null && anim.enabled && anim.runtimeAnimatorController != null)
+                {
+                    anim.Rebind();
+                    anim.Update(0f);
+                    anim.Play(0, 0, 0f);
+                }
+            }
+
             effectObj.transform.DOPlay();
+
+            // [Victory / Defeat] 결과 화면 프리팹(BattleResultPopup 포함)은 유저가 버튼을 눌러 다음 단계로 넘어갈 때까지 화면에 상주
+            if (type == ProductionType.Victory || type == ProductionType.Defeat)
+            {
+                yield break;
+            }
 
             // 3. 연출 지속 시간 대기
             yield return new WaitForSeconds(duration);

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <StringTable>
 <Row>
 <Id>1</Id><KrString>더미</KrString><EnString>Dummy</EnString><JpString>ダミー</JpString></Row>
@@ -95,8 +95,8 @@ But a loss or draw breaks the streak.</EnString><JpString>3連勝を達成する
 <Row>
 <Id>12005</Id><KrString>체인에 따라 '붐' 발동 확률과 데미지가 올라간다. 
 붐은 매 턴 확률에 따라 플레이어를 공격한다.</KrString><EnString>Chains raise the activation rate and damage of "Boom."
-Boom attacks Marine each turn based on chance.</EnString><JpString>チェインに応じて「ブーム」の発動確率とダメージが上昇。
-ブームは毎ターン、確率に応じてマリンを攻撃する。</JpString></Row>
+Boom attacks the player each turn based on chance.</EnString><JpString>チェインに応じて「ブーム」の発動確率とダメージが上昇。
+ブームは毎ターン、確率に応じてプレイヤーを攻撃する。</JpString></Row>
 <Row>
 <Id>12006</Id><KrString>캐릭터마다 가지고 있는 액티브 능력. 
 승리해서 게이지를 올리고 클릭 해 발동한다.</KrString><EnString>An active ability unique to each character.
@@ -105,7 +105,7 @@ Win matches to charge the gauge, then click to activate.</EnString><JpString>キ
 <Row>
 <Id>12007</Id><KrString>해당 턴에서 지면 오히려 회복한다.</KrString><EnString>If you lose on that turn, you recover HP instead.</EnString><JpString>そのターンで負けると、逆にHPを回復する。</JpString></Row>
 <Row>
-<Id>12008</Id><KrString>플레이어의 카드 일부를 낼 수 없게 막는다.</KrString><EnString>Blocks Marine from playing some of her cards.</EnString><JpString>マリンの一部のカードを出せないようにする。</JpString></Row>
+<Id>12008</Id><KrString>플레이어의 카드 일부를 낼 수 없게 막는다.</KrString><EnString>Blocks the player from playing some of their cards.</EnString><JpString>プレイヤーの一部のカードを出せないようにする。</JpString></Row>
 <Row>
 <Id>100101</Id><KrString>플레이어</KrString><EnString>Player</EnString><JpString>プレイヤー</JpString></Row>
 <Row>
@@ -153,27 +153,27 @@ Win matches to charge the gauge, then click to activate.</EnString><JpString>キ
 <Row>
 <Id>900212</Id><KrString>피격 시, 받는 데미지만큼 HP를 회복합니다.</KrString><EnString>Recovers HP equal to the damage taken when hit.</EnString><JpString>被弾時、受けたダメージ分のHPを回復する。</JpString></Row>
 <Row>
-<Id>900221</Id><KrString>라이벌2 특수스킬</KrString><EnString>Iroha Step!</EnString><JpString>必殺一閃</JpString></Row>
+<Id>900221</Id><KrString>라이벌2 특수스킬</KrString><EnString>Rival2 Special Skill</EnString><JpString>ライバル2特技</JpString></Row>
 <Row>
 <Id>900222</Id><KrString>공격 시, 주는 데미지를 2배로 만듭니다.</KrString><EnString>Doubles the damage dealt when attacking.</EnString><JpString>攻撃時、与えるダメージを2倍にする。</JpString></Row>
 <Row>
-<Id>900231</Id><KrString>라이벌3 특수스킬</KrString><EnString>Lucky Me♪</EnString><JpString>フブちゃんラッキー♪</JpString></Row>
+<Id>900231</Id><KrString>라이벌3 특수스킬</KrString><EnString>Rival3 Special Skill</EnString><JpString>ライバル3特技</JpString></Row>
 <Row>
-<Id>900232</Id><KrString>라이벌3 특수스킬 설명 스트링</KrString><EnString>[Fubuki special skill description]</EnString><JpString>[フブキの特殊スキル説明テキスト]</JpString></Row>
+<Id>900232</Id><KrString>라이벌3 특수스킬 설명 스트링</KrString><EnString>[Rival3 special skill description]</EnString><JpString>[ライバル3の特殊スキル説明テキスト]</JpString></Row>
 <Row>
-<Id>900241</Id><KrString>라이벌4 특수스킬</KrString><EnString>Spanking</EnString><JpString>スパンキング</JpString></Row>
+<Id>900241</Id><KrString>라이벌4 특수스킬</KrString><EnString>Rival4 Special Skill</EnString><JpString>ライバル4特技</JpString></Row>
 <Row>
-<Id>900242</Id><KrString>라이벌4 특수스킬 설명 스트링</KrString><EnString>[Lamy special skill description]</EnString><JpString>[ラミィの特殊スキル説明テキスト]</JpString></Row>
+<Id>900242</Id><KrString>라이벌4 특수스킬 설명 스트링</KrString><EnString>[Rival4 special skill description]</EnString><JpString>[ライバル4の特殊スキル説明テキスト]</JpString></Row>
 <Row>
-<Id>900251</Id><KrString>라이벌5 특수스킬</KrString><EnString>Not done yet, nie…</EnString><JpString>まだ負けてないにぇ…</JpString></Row>
+<Id>900251</Id><KrString>라이벌5 특수스킬</KrString><EnString>Rival5 Special Skill</EnString><JpString>ライバル5特技</JpString></Row>
 <Row>
-<Id>900252</Id><KrString>라이벌5 특수스킬 설명 스트링</KrString><EnString>[Miko special skill description]</EnString><JpString>[ミコの特殊スキル説明テキスト]</JpString></Row>
+<Id>900252</Id><KrString>라이벌5 특수스킬 설명 스트링</KrString><EnString>[Rival5 special skill description]</EnString><JpString>[ライバル5の特殊スキル説明テキスト]</JpString></Row>
 <Row>
-<Id>900261</Id><KrString>라이벌6 특수스킬</KrString><EnString>No! No no!</EnString><JpString>イヤ！イヤイヤ！</JpString></Row>
+<Id>900261</Id><KrString>라이벌6 특수스킬</KrString><EnString>Rival6 Special Skill</EnString><JpString>ライバル6特技</JpString></Row>
 <Row>
-<Id>900262</Id><KrString>라이벌6 특수스킬 설명 스트링</KrString><EnString>[Kanade special skill description]</EnString><JpString>[カナデの特殊スキル説明テキスト]</JpString></Row>
+<Id>900262</Id><KrString>라이벌6 특수스킬 설명 스트링</KrString><EnString>[Rival6 special skill description]</EnString><JpString>[ライバル6の特殊スキル説明テキスト]</JpString></Row>
 <Row>
-<Id>900271</Id><KrString>라이벌7 특수스킬</KrString><EnString>Bunnification Plan!</EnString><JpString>兎化計画！</JpString></Row>
+<Id>900271</Id><KrString>라이벌7 특수스킬</KrString><EnString>Rival7 Special Skill</EnString><JpString>ライバル7特技</JpString></Row>
 <Row>
 <Id>900272</Id><KrString>2턴 동안, 상대편 카드 3장을 낼 수없게 만듭니다.</KrString><EnString>For 2 turns, blocks the opponent from playing 3 of their cards.</EnString><JpString>2ターンの間、相手のカードを3枚出せないようにする。</JpString></Row>
 <Row>

@@ -216,6 +216,95 @@ namespace Core.Battle
                     Debug.Log($"[Chain: Rain] Failed (Roll: {roll:F2} > Prob: {rainProb:F2}).");
                 }
             }
+            else if (action == "lava")
+            {
+                // [New 261026] Lava 체인 (사쿠라 미코): 승리 시 상대방 카드들에 일정 확률로 Lava 효과 부여
+                // statusIds[0] = LavaProb, statusIds[1] = LavaCount
+                float lavaProb = (statusIds != null && statusIds.Length > 0 && statusIds[0] >= 0) ? statusIds[0] : 0.5f;
+                int lavaCount = (statusIds != null && statusIds.Length > 1 && statusIds[1] > 0) ? (int)statusIds[1] : 1;
+
+                var uninfectedCards = loserModel.hand.Where(c => !c.IsLava).ToList();
+                if (uninfectedCards.Count > 0)
+                {
+                    var targets = uninfectedCards.OrderBy(_ => UnityEngine.Random.value).Take(lavaCount).ToList();
+                    foreach (var card in targets)
+                    {
+                        float roll = UnityEngine.Random.value;
+                        if (roll <= lavaProb)
+                        {
+                            card.ApplyLavaEffect();
+                            Debug.Log($"[Chain: Lava] Success (Roll: {roll:F2} <= Prob: {lavaProb:F2})! Applied Lava to {loserModel.tableData.id}'s {card.EffectiveElement} card.");
+                        }
+                        else
+                        {
+                            Debug.Log($"[Chain: Lava] Failed on card {card.EffectiveElement} (Roll: {roll:F2} > Prob: {lavaProb:F2}).");
+                        }
+                    }
+                }
+            }
+            else if (action == "changefoolcard")
+            {
+                // [New 261026] ChangeFoolCard 체인 (오토노세 카나데): 승리 시 상대방 카드들에 일정 확률로 Fool 카드 변환
+                // statusIds[0] = FoolCardProb, statusIds[1] = FoolCardCount
+                float foolProb = (statusIds != null && statusIds.Length > 0 && statusIds[0] >= 0) ? statusIds[0] : 0.5f;
+                int foolCount = (statusIds != null && statusIds.Length > 1 && statusIds[1] > 0) ? (int)statusIds[1] : 1;
+
+                int foolCardId = (chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 0 && chainRow.ChainSetValues[0] > 0)
+                    ? (int)chainRow.ChainSetValues[0]
+                    : 8001;
+                var foolSkillRow = TableManager.Instance.GetTable<SkillTable>()?.Get(foolCardId);
+
+                var normalCards = loserModel.hand.Where(c => !c.IsFool).ToList();
+                if (normalCards.Count > 0)
+                {
+                    var targets = normalCards.OrderBy(_ => UnityEngine.Random.value).Take(foolCount).ToList();
+                    foreach (var card in targets)
+                    {
+                        float roll = UnityEngine.Random.value;
+                        if (roll <= foolProb)
+                        {
+                            card.ConvertToFool(foolSkillRow);
+                            Debug.Log($"[Chain: ChangeFoolCard] Success (Roll: {roll:F2} <= Prob: {foolProb:F2})! Converted {loserModel.tableData.id}'s card to Fool.");
+                        }
+                        else
+                        {
+                            Debug.Log($"[Chain: ChangeFoolCard] Failed on card {card.EffectiveElement} (Roll: {roll:F2} > Prob: {foolProb:F2}).");
+                        }
+                    }
+                }
+            }
+            else if (action == "bomb")
+            {
+                // [New 261026] Bomb 체인 (우사다 페코라): 승리 시 상대방 카드들에 일정 확률로 폭탄(BombData) 스택 부여
+                // ChainSetValues[0] = MaxBombStack (기본 3)
+                // statusIds[0] = BombProb, statusIds[1] = BombCount, statusIds[2] = DamageValue
+                int maxBombStack = (chainRow.ChainSetValues != null && chainRow.ChainSetValues.Length > 0 && chainRow.ChainSetValues[0] > 0)
+                    ? (int)chainRow.ChainSetValues[0]
+                    : 3;
+
+                float bombProb = (statusIds != null && statusIds.Length > 0 && statusIds[0] >= 0) ? statusIds[0] : 0.5f;
+                int bombCount = (statusIds != null && statusIds.Length > 1 && statusIds[1] > 0) ? (int)statusIds[1] : 1;
+                float damageValue = (statusIds != null && statusIds.Length > 2 && statusIds[2] > 0) ? statusIds[2] : 1f;
+
+                var eligibleCards = loserModel.hand.Where(c => c.BombStack < maxBombStack).ToList();
+                if (eligibleCards.Count > 0)
+                {
+                    var targets = eligibleCards.OrderBy(_ => UnityEngine.Random.value).Take(bombCount).ToList();
+                    foreach (var card in targets)
+                    {
+                        float roll = UnityEngine.Random.value;
+                        if (roll <= bombProb)
+                        {
+                            card.AddBomb(new BombData(damageValue));
+                            Debug.Log($"[Chain: Bomb] Success (Roll: {roll:F2} <= Prob: {bombProb:F2})! Added Bomb to {loserModel.tableData.id}'s card. (Stack: {card.BombStack}/{maxBombStack}, Dmg: {damageValue})");
+                        }
+                        else
+                        {
+                            Debug.Log($"[Chain: Bomb] Failed on card {card.EffectiveElement} (Roll: {roll:F2} > Prob: {bombProb:F2}).");
+                        }
+                    }
+                }
+            }
             else if (action == "diceroll")
             {
                 // [New 260921 / 261011 기획] DiceRoll 체인 (후부키): 승리 시 2~5체인 수에 따라 float[12] 테이블 기반 주사위 롤

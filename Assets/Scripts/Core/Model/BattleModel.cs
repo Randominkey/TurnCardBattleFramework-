@@ -24,6 +24,9 @@ namespace Core.Battle
         public ReactiveProperty<float> drawDamageProb { get; } = new ReactiveProperty<float>(0f);
         public ReactiveProperty<int> drawDamageValue { get; } = new ReactiveProperty<int>(0);
 
+        // [New 261026] 드로우 가능 여부 통합 상태 (환경, 풀핸드, 디버프 등 통합 평가)
+        public ReactiveProperty<bool> canDrawCard { get; } = new ReactiveProperty<bool>(true);
+
         /// <summary>
         /// 이번 라운드에 스페셜 스킬을 활성화했는지 여부
         /// </summary>
@@ -284,11 +287,43 @@ namespace Core.Battle
         // [New 261013] 현재 스테이지에 적용된 환경 변화 요소 (1개만 활성화)
         public ReactiveProperty<EnvironmentType> currentEnvironment { get; } = new ReactiveProperty<EnvironmentType>(EnvironmentType.None);
 
+        // [New 261103] 질문(Question / NPC 다음 행동 힌트) 시스템 상태 모델
+        public BattleQuestionModel question { get; private set; }
+
         public BattleModel(BattleTableRow battleTable, BattleCharacterTableRow pData, BattleCharacterTableRow eData)
         {
             this.battleTable = battleTable;
             player = new BattleCharacterModel(pData);
             enemy = new BattleCharacterModel(eData);
+            question = new BattleQuestionModel(this);
+
+            SetupDrawAvailability(player);
+            SetupDrawAvailability(enemy);
+        }
+
+        /// <summary>
+        /// [대안 A] 환경(IrysHope), 핸드 카드 수, 디버프 등을 통합 감지하여 캐릭터의 드로우 가능 여부를 반응형으로 자동 갱신합니다.
+        /// 추후 드로우 제약 조건이 추가될 경우 이 메서드의 조건식만 확장하면 UI(View) 수정 없이 자동 반영됩니다.
+        /// </summary>
+        private void SetupDrawAvailability(BattleCharacterModel model)
+        {
+            Observable.CombineLatest(
+                currentEnvironment,
+                model.hand.ObserveCountChanged().StartWith(model.hand.Count),
+                (env, count) => {
+                    var gameSet = TableManager.Instance.GetTable<GameSetTable>()?.Get(0);
+                    int maxCards = gameSet?.maxCards ?? 8;
+
+                    // 1. 아이리스의 희망 환경: 상시 풀 핸드 유지 모드이므로 수동 드로우 불가
+                    if (env == EnvironmentType.IrysHope) return false;
+
+                    // 2. 최대 핸드 수 초과 시 드로우 불가
+                    if (count >= maxCards) return false;
+
+                    // 추후 드로우 봉인 디버프, RainTime 등의 조건이 추가되면 여기에 추가
+                    return true;
+                }
+            ).Subscribe(canDraw => model.canDrawCard.Value = canDraw);
         }
 
         public void ResetRoundSelection()
@@ -297,6 +332,7 @@ namespace Core.Battle
             enemySelectedCards.Clear();
             playerChoseDraw = false;
             enemyChoseDraw = false;
+            question?.ClearActiveAnswer();
         }
     }
 }

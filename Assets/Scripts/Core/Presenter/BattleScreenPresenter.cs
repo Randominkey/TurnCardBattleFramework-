@@ -74,16 +74,7 @@ namespace Core.View
 
         public void PlayRoundTransition(Action onComplete)
         {
-            if (ctx.rootCanvasGroup == null)
-            {
-                onComplete?.Invoke();
-                return;
-            }
-
-            Sequence seq = DOTween.Sequence();
-            seq.Append(ctx.rootCanvasGroup.DOFade(0.3f, 0.2f));
-            seq.Append(ctx.rootCanvasGroup.DOFade(1.0f, 0.2f));
-            seq.OnComplete(() => onComplete?.Invoke());
+            onComplete?.Invoke();
         }
 
         public void ShowWarningMessage(string message)

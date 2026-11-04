@@ -34,8 +34,15 @@ namespace Core.Tutorial
         [SerializeField] private TutorialScenarioSO feverTutorialScenario;
 
         [Header("Debug Settings")]
-        [Tooltip("에디터 플레이 시 완료 여부와 무관하게 항상 튜토리얼을 재생할지 여부")]
-        [SerializeField] private bool ignoreCompletedInEditor = true;
+        [Tooltip("에디터 플레이 시 완료 여부와 무관하게 항상 튜토리얼을 강제 재생할지 여부 (체크 해제 시 1회 완료 후 스킵)")]
+        [SerializeField] private bool ignoreCompletedInEditor = false;
+
+        [ContextMenu("Reset All Tutorial Progress (PlayerPrefs)")]
+        public void ResetProgressFromInspector()
+        {
+            TutorialProgress.ResetAll();
+            Debug.Log("[TutorialManager] Reset all tutorial progress successfully via ContextMenu!");
+        }
 
         [Header("Views")]
         [SerializeField] private TutorialOverlayView overlayView;
@@ -345,7 +352,12 @@ namespace Core.Tutorial
                     ? feverTutorialScenario.scenarioKey 
                     : "Tutorial_Global_Fever";
 
-                if (TutorialProgress.IsCompleted(feverKey)) return false;
+#if UNITY_EDITOR
+                bool skipCompletedCheck = ignoreCompletedInEditor;
+#else
+                bool skipCompletedCheck = false;
+#endif
+                if (!skipCompletedCheck && TutorialProgress.IsCompleted(feverKey)) return false;
 
                 Debug.Log($"[Tutorial] Global Feature Intercepted: {condition}! Starting Fever Guide.");
                 StartGlobalFeatureTutorial(feverTutorialScenario, feverKey, onResume);
@@ -360,12 +372,6 @@ namespace Core.Tutorial
         /// </summary>
         private void StartGlobalFeatureTutorial(TutorialScenarioSO scenario, string key, Action onResume)
         {
-            if (overlayView != null)
-            {
-                overlayView.ClearHighlight();
-                overlayView.Show();
-            }
-
             Action onFinish = () => {
                 TutorialProgress.SetCompleted(key, true);
                 if (overlayView != null) overlayView.Hide();
@@ -377,6 +383,20 @@ namespace Core.Tutorial
             if (scenario != null && scenario.steps != null && scenario.steps.Count > 0)
             {
                 var step = scenario.steps[0];
+                if (overlayView != null)
+                {
+                    overlayView.Show();
+                    var targets = currentBattleView != null ? ResolveTargetComponents(step.targetType, currentBattleView) : null;
+                    if (targets != null && targets.Length > 0)
+                    {
+                        overlayView.Highlight(step.allowInteraction, targets);
+                    }
+                    else
+                    {
+                        overlayView.ClearHighlight();
+                    }
+                }
+
                 narratorView.SetPlacement(step.placement, null);
                 if (step.messageStringId > 0)
                 {
@@ -389,6 +409,12 @@ namespace Core.Tutorial
             }
             else
             {
+                if (overlayView != null)
+                {
+                    overlayView.ClearHighlight();
+                    overlayView.Show();
+                }
+
                 narratorView.SetPlacement(NarratorPlacement.Center, null);
                 narratorView.ShowMessage(
                     "마린의 피버 게이지가 모두 차올라 피버 모드로 진입했습니다!\n피버 모드에서는 승리할 때마다 피버 스택이 쌓여 상대에게 강력한 추가 피해를 입힙니다!",

@@ -74,6 +74,10 @@ namespace Core.View
             {
                 if (card != null) card.RefreshVisuals();
             }
+
+            // [New] 런타임 속성 변환(MixReload, RainTime 등) 후 RSPF(묵찌빠풀) 순서로 부드럽게 재배열
+            ctx.playerHandContainer?.SortAndApplyLayout(true);
+            ctx.enemyHandContainer?.SortAndApplyLayout(true);
         }
 
         public void ResetPlayerVisualStates()
@@ -257,6 +261,15 @@ namespace Core.View
                     {
                         CardViewPool.Release(target, prefab);
                     }
+                }
+            }).AddTo(ctx.viewOwner);
+
+            hand.ObserveReplace().Subscribe(replaceEvent => {
+                var target = viewList.FirstOrDefault(c => c.CardInstance == replaceEvent.OldValue);
+                if (target != null)
+                {
+                    target.Setup(replaceEvent.NewValue, onClick, container);
+                    target.RefreshVisuals();
                 }
             }).AddTo(ctx.viewOwner);
 

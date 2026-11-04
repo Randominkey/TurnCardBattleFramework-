@@ -109,6 +109,7 @@ namespace Core.View
         /// <summary>
         /// 1순위: 원본 Addressables("ChainUI/{action}")
         /// 2순위: 데모 Addressables("Demo/ChainUI/{action}")
+        /// 키 존재 여부를 사전 확인하여 InvalidKeyException 에러를 원천 차단합니다.
         /// </summary>
         private void LoadChainUI(string actionType, BattleCharacterModel model)
         {
@@ -117,36 +118,51 @@ namespace Core.View
             string primaryKey = $"ChainUI/{actionType}";
             string fallbackKey = $"Demo/ChainUI/{actionType}";
 
-            // 1순위: 원본 주소 비동기 스폰 시도
-            Addressables.InstantiateAsync(primaryKey, chainUIRoot).Completed += handle =>
+            // 1순위: 원본 주소 리소스 위치 존재 여부 사전 확인 (InvalidKeyException 방지)
+            Addressables.LoadResourceLocationsAsync(primaryKey).Completed += locHandle =>
             {
-                if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
+                if (locHandle.Status == AsyncOperationStatus.Succeeded && locHandle.Result != null && locHandle.Result.Count > 0)
                 {
-                    var chainView = handle.Result.GetComponent<BaseChainView>();
-                    if (chainView != null)
+                    Addressables.InstantiateAsync(primaryKey, chainUIRoot).Completed += handle =>
                     {
-                        chainView.Setup(model);
-                        return;
-                    }
+                        if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
+                        {
+                            var chainView = handle.Result.GetComponent<BaseChainView>();
+                            if (chainView != null)
+                            {
+                                chainView.Setup(model);
+                                return;
+                            }
+                        }
+                        if (handle.Result != null) Addressables.ReleaseInstance(handle.Result);
+                    };
+                    return;
                 }
 
-                // 1순위 실패 시: 핸들 정리 후 2순위 데모 주소 시도
-                if (handle.Result != null) Addressables.ReleaseInstance(handle.Result);
-
-                Addressables.InstantiateAsync(fallbackKey, chainUIRoot).Completed += fallbackHandle =>
+                // 2순위: 데모 주소 리소스 위치 존재 여부 확인
+                Addressables.LoadResourceLocationsAsync(fallbackKey).Completed += fallbackLocHandle =>
                 {
-                    if (fallbackHandle.Status == AsyncOperationStatus.Succeeded && fallbackHandle.Result != null)
+                    if (fallbackLocHandle.Status == AsyncOperationStatus.Succeeded && fallbackLocHandle.Result != null && fallbackLocHandle.Result.Count > 0)
                     {
-                        var chainView = fallbackHandle.Result.GetComponent<BaseChainView>();
-                        if (chainView != null)
+                        Addressables.InstantiateAsync(fallbackKey, chainUIRoot).Completed += fallbackHandle =>
                         {
-                            chainView.Setup(model);
-                            return;
-                        }
+                            if (fallbackHandle.Status == AsyncOperationStatus.Succeeded && fallbackHandle.Result != null)
+                            {
+                                var chainView = fallbackHandle.Result.GetComponent<BaseChainView>();
+                                if (chainView != null)
+                                {
+                                    chainView.Setup(model);
+                                    return;
+                                }
+                            }
+                            if (fallbackHandle.Result != null) Addressables.ReleaseInstance(fallbackHandle.Result);
+                        };
                     }
-
-                    if (fallbackHandle.Result != null) Addressables.ReleaseInstance(fallbackHandle.Result);
-                    Debug.LogWarning($"[BattleStatusView] Chain UI not found for keys: '{primaryKey}' or '{fallbackKey}'");
+                    else
+                    {
+                        // 등록된 체인 UI가 없는 경우(DiceRoll, Lava 등 아직 미등록 체인) 가벼운 로그만 출력하고 정상 진행
+                        Debug.Log($"[BattleStatusView] No Addressable Chain UI registered for action: '{actionType}'");
+                    }
                 };
             };
         }

@@ -13,6 +13,7 @@ namespace Core.View
         private GraphicRaycaster graphicRaycaster;
         private int originalOrder;
         private bool originalOverride;
+        private int originalLayerId;
 
         private void Awake()
         {
@@ -20,8 +21,12 @@ namespace Core.View
             graphicRaycaster = GetComponent<GraphicRaycaster>();
             
             // 초기 상태 저장
-            originalOrder = canvas.sortingOrder;
-            originalOverride = canvas.overrideSorting;
+            if (canvas != null)
+            {
+                originalOrder = canvas.sortingOrder;
+                originalOverride = canvas.overrideSorting;
+                originalLayerId = canvas.sortingLayerID;
+            }
         }
 
         /// <summary>
@@ -30,7 +35,8 @@ namespace Core.View
         /// <param name="active">true면 딤드 위로 올림, false면 원상 복구</param>
         /// <param name="highlightOrder">하이라이트 시 적용할 오더 (기본 501)</param>
         /// <param name="allowInteraction">하이라이트 중 마우스 상호작용(호버/클릭) 허용 여부</param>
-        public void SetHighlight(bool active, int highlightOrder = 501, bool allowInteraction = true)
+        /// <param name="layerName">하이라이트 시 적용할 Sorting Layer 이름 (null이면 기존 레이어 유지)</param>
+        public void SetHighlight(bool active, int highlightOrder = 501, bool allowInteraction = true, string layerName = null)
         {
             if (canvas == null) return;
 
@@ -39,6 +45,10 @@ namespace Core.View
             if (active)
             {
                 canvas.overrideSorting = true;
+                if (!string.IsNullOrEmpty(layerName))
+                {
+                    canvas.sortingLayerName = layerName;
+                }
                 canvas.sortingOrder = highlightOrder;
                 
                 if (graphicRaycaster != null) graphicRaycaster.enabled = allowInteraction;
@@ -47,6 +57,13 @@ namespace Core.View
             else
             {
                 canvas.overrideSorting = originalOverride;
+                int highlightLayerId = SortingLayer.NameToID("TutorialHighlight");
+                if (originalLayerId == highlightLayerId)
+                {
+                    int gameUiId = SortingLayer.NameToID("GameUI");
+                    originalLayerId = gameUiId != 0 ? gameUiId : 0;
+                }
+                canvas.sortingLayerID = originalLayerId;
                 canvas.sortingOrder = originalOrder;
                 if (graphicRaycaster != null) graphicRaycaster.enabled = true;
                 if (cg != null) cg.blocksRaycasts = true;

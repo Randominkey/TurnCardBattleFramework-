@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace Core.Table
@@ -39,10 +40,46 @@ namespace Core.Table
         [XmlElement("ExecuteId")] public string executeIdsRaw;
 
         private SceneType[] cachedExecuteTypes;
-        public SceneType[] ExecuteTypes => cachedExecuteTypes ??= TableUtil.ParseEnumArray<SceneType>(executeTypesRaw);
+        public SceneType[] ExecuteTypes => cachedExecuteTypes ??= ParseExecuteTypes(executeTypesRaw);
 
         private int[] cachedExecuteIds;
-        public int[] ExecuteIds => cachedExecuteIds ??= TableUtil.ParseIntArray(executeIdsRaw);
+        public int[] ExecuteIds => cachedExecuteIds ??= ParseExecuteIds(executeIdsRaw);
+
+        private static SceneType[] ParseExecuteTypes(string raw)
+        {
+            if (string.IsNullOrEmpty(raw) || raw == "-1") return Array.Empty<SceneType>();
+            return raw.Split(',')
+                      .Select(s => s.Trim())
+                      .Where(s => !string.IsNullOrEmpty(s))
+                      .Select(s => {
+                          if (s.Equals("PreSpeak", StringComparison.OrdinalIgnoreCase) ||
+                              s.Equals("AfterSpeak", StringComparison.OrdinalIgnoreCase) ||
+                              s.Equals("Speak", StringComparison.OrdinalIgnoreCase))
+                          {
+                              return SceneType.Speak;
+                          }
+                          if (s.Equals("Battle", StringComparison.OrdinalIgnoreCase))
+                          {
+                              return SceneType.Battle;
+                          }
+                          if (Enum.TryParse<SceneType>(s, true, out var result))
+                          {
+                              return result;
+                          }
+                          return SceneType.Title;
+                      })
+                      .ToArray();
+        }
+
+        private static int[] ParseExecuteIds(string raw)
+        {
+            if (string.IsNullOrEmpty(raw) || raw == "-1") return Array.Empty<int>();
+            return raw.Split(',')
+                      .Select(s => s.Trim())
+                      .Where(s => !string.IsNullOrEmpty(s))
+                      .Select(s => int.TryParse(s, out int result) ? result : 0)
+                      .ToArray();
+        }
     }
 
     [Serializable]

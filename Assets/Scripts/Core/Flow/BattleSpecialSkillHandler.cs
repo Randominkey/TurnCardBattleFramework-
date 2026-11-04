@@ -36,6 +36,7 @@ namespace Core.Flow
             RegisterAction(new AlignReloadSkillAction());
             RegisterAction(new RainDrawSkillAction());
             RegisterAction(new LoseHealSkillAction());
+            RegisterAction(new BurnCardSkillAction());
         }
 
         public void RegisterAction(SpecialSkillActionBase action)
@@ -68,8 +69,13 @@ namespace Core.Flow
             // 스페셜 스킬 발동 연출 실행
             PlaySpecialSkillProduction(owner, skillRow);
 
-            // 전략 패턴 실행
+            // 전략 패턴 실행 (기획 변경에 따른 신규 액션 별칭 매핑 포함)
             string actionKey = skillRow.action?.ToLower() ?? "";
+            if (skillRow.id == 5004 && actionKey == "berserk")
+            {
+                actionKey = "burncard"; // 사쿠라 미코 신규 특수스킬 BurnCard 매핑
+            }
+
             var context = new SpecialSkillContext(battleModel, battleView, chainHandler, owner, skillRow);
 
             if (actions.TryGetValue(actionKey, out var skillAction))

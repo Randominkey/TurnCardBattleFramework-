@@ -24,11 +24,13 @@ namespace Core.View
             card.transform.localScale = Vector3.one; //user edited
             card.SetOwnerContainer(this); // [Fix] 소속 컨테이너 정보 갱신 (마우스 이탈 시 정렬 동기화 대응)
 
-            // 속성 및 ID 순으로 정렬 (묵 -> 찌 -> 빠 -> 레인 -> 풀 순서 유지)
+            // 속성 및 ID 순으로 정렬 (묵 -> 찌 -> 빠 -> 풀 순서 유지)
             cards.Sort((a, b) =>
             {
-                int orderA = GetElementSortOrder(a.SkillData != null ? a.SkillData.element : SkillElement.None);
-                int orderB = GetElementSortOrder(b.SkillData != null ? b.SkillData.element : SkillElement.None);
+                SkillElement elemA = a.CardInstance != null ? a.CardInstance.EffectiveElement : (a.SkillData != null ? a.SkillData.element : SkillElement.None);
+                SkillElement elemB = b.CardInstance != null ? b.CardInstance.EffectiveElement : (b.SkillData != null ? b.SkillData.element : SkillElement.None);
+                int orderA = GetElementSortOrder(elemA);
+                int orderB = GetElementSortOrder(elemB);
                 int elementCompare = orderA.CompareTo(orderB);
                 if (elementCompare != 0) return elementCompare;
 
@@ -63,6 +65,30 @@ namespace Core.View
             }
         }
 
+        /// <summary>
+        /// 현재 핸드에 있는 카드들을 EffectiveElement (Rock -> Scissors -> Paper -> Fool) 순으로 재정렬하고 레이아웃을 갱신합니다.
+        /// (MixReload, RainTime 등 런타임 속성 변환 후 호출)
+        /// </summary>
+        public void SortAndApplyLayout(bool animate = true)
+        {
+            cards.Sort((a, b) =>
+            {
+                SkillElement elemA = a.CardInstance != null ? a.CardInstance.EffectiveElement : (a.SkillData != null ? a.SkillData.element : SkillElement.None);
+                SkillElement elemB = b.CardInstance != null ? b.CardInstance.EffectiveElement : (b.SkillData != null ? b.SkillData.element : SkillElement.None);
+                int orderA = GetElementSortOrder(elemA);
+                int orderB = GetElementSortOrder(elemB);
+                int elementCompare = orderA.CompareTo(orderB);
+                if (elementCompare != 0) return elementCompare;
+
+                int idA = a.SkillData != null ? a.SkillData.id : 0;
+                int idB = b.SkillData != null ? b.SkillData.id : 0;
+                return idA.CompareTo(idB);
+            });
+
+            UpdateLayout(animate);
+            SyncSiblingIndices();
+        }
+
         public void RemoveCard(CardView card, bool animate = true)
         {
             if (cards.Contains(card))
@@ -84,7 +110,7 @@ namespace Core.View
         }
 
         /// <summary>
-        /// 카드의 리스트 순서와 Hierarchy 순서(Sibling Index)를 동기화합니다.
+        /// 카드의 리스트 순서와 Hierarchy 순서(Sibling Index) 및 캔버스 소팅 오더를 동기화합니다.
         /// 이를 통해 왼쪽 카드가 아래에, 오른쪽 카드가 위에 자연스럽게 포개지게 됩니다.
         /// </summary>
         public void SyncSiblingIndices()
@@ -94,6 +120,7 @@ namespace Core.View
                 if (cards[i] != null)
                 {
                     cards[i].transform.SetSiblingIndex(i);
+                    cards[i].SetBaseSortingOrder(10 + i * 5);
                 }
             }
         }
@@ -130,7 +157,7 @@ namespace Core.View
             return new Vector2(startX + index * spacing, 0);
         }
 
-        private static int GetElementSortOrder(SkillElement element)
+        public static int GetElementSortOrder(SkillElement element)
         {
             switch (element)
             {

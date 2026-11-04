@@ -24,6 +24,26 @@ namespace Core.Battle
         public bool IsRain { get; private set; }
         public bool HasRainEffect => IsRain;
 
+        // [New 261026] Lava 효과 (미코 체인: 카드에 용암 부여, 미코 특수스킬로 소멸)
+        public bool IsLava { get; private set; }
+        public bool HasLavaEffect => IsLava;
+
+        // [New 261026] Bomb 효과 (페코라 체인: 카드에 폭탄 부여, 제출 시 자해 피해)
+        private readonly List<BombData> bombs = new();
+        public IReadOnlyList<BombData> Bombs => bombs;
+        public int BombStack => bombs.Count;
+        public bool IsBomb => bombs.Count > 0;
+        public bool HasBombEffect => IsBomb;
+        public float TotalBombDamage
+        {
+            get
+            {
+                float total = 0f;
+                for (int i = 0; i < bombs.Count; i++) total += bombs[i].Damage;
+                return total;
+            }
+        }
+
         // [New 260921] 특수 속성 여부 (Fool은 가위바위보에 자동 패배)
         public bool IsFool => EffectiveElement == SkillElement.Fool;
         public bool IsSpecial => IsFool;
@@ -34,6 +54,8 @@ namespace Core.Battle
             this.TableData = tableData;
             this.OverrideElement = null;
             this.IsRain = false;
+            this.IsLava = false;
+            this.bombs.Clear();
         }
 
         /// <summary>
@@ -50,6 +72,50 @@ namespace Core.Battle
         }
 
         /// <summary>
+        /// 카드에 Lava 효과를 부여합니다 (묵/찌/빠 속성은 유지되며, 미코의 BurnCard 스킬로 소멸).
+        /// </summary>
+        public void ApplyLavaEffect()
+        {
+            IsLava = true;
+        }
+
+        public void RemoveLavaEffect()
+        {
+            IsLava = false;
+        }
+
+        /// <summary>
+        /// 카드에 폭탄을 추가합니다.
+        /// </summary>
+        public void AddBomb(BombData bomb)
+        {
+            if (bomb != null) bombs.Add(bomb);
+        }
+
+        public void AddBomb(float damage, string bombType = "Normal")
+        {
+            bombs.Add(new BombData(damage, bombType));
+        }
+
+        public void ClearBombs()
+        {
+            bombs.Clear();
+        }
+
+        /// <summary>
+        /// 하위 호환용 편의 메서드 (기본 1 데미지 폭탄 추가)
+        /// </summary>
+        public void ApplyBombEffect(float damage = 1f, string bombType = "Normal")
+        {
+            AddBomb(damage, bombType);
+        }
+
+        public void RemoveBombEffect()
+        {
+            ClearBombs();
+        }
+
+        /// <summary>
         /// 하위 호환성 유지용 Rain 부여 메서드
         /// </summary>
         public void ConvertToRain(SkillTableRow rainTableData = null)
@@ -58,7 +124,7 @@ namespace Core.Battle
         }
 
         /// <summary>
-        /// 카드의 속성을 Fool로 강제 변환합니다 (RainTime 등).
+        /// 카드의 속성을 Fool로 강제 변환합니다 (RainTime 등). (디버프/버프 상태는 유지됨)
         /// </summary>
         public void ConvertToFool(SkillTableRow foolTableData = null)
         {
@@ -67,6 +133,16 @@ namespace Core.Battle
             {
                 TableData = foolTableData;
             }
+        }
+
+        /// <summary>
+        /// 카드의 인스턴스 및 디버프(Rain, Lava, Bomb, Broken 등) 상태를 유지한 채 스킬 데이터(속성)만 변경합니다.
+        /// </summary>
+        public void RerollSkill(SkillTableRow newSkillData)
+        {
+            if (newSkillData == null) return;
+            TableData = newSkillData;
+            OverrideElement = null; // 오버라이드 속성 리셋하여 새 스킬 데이터의 기본 속성 반영
         }
 
         /// <summary>

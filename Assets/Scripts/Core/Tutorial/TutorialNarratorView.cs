@@ -76,6 +76,7 @@ namespace Core.Tutorial
             var canvas = GetComponent<Canvas>();
             if (canvas == null) canvas = gameObject.AddComponent<Canvas>();
             canvas.overrideSorting = true;
+            canvas.sortingLayerName = "TutorialNarrator";
             canvas.sortingOrder = 700;
 
             var raycaster = GetComponent<GraphicRaycaster>();

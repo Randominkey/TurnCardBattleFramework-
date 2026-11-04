@@ -172,6 +172,13 @@ namespace Core.Audio
             }
 
             clip = Resources.Load<AudioClip>(path);
+            if (clip == null)
+            {
+                // [Fallback] Sounds/SE/... <-> SE/... 경로 호환 지원
+                string altPath = path.StartsWith("Sounds/") ? path.Substring("Sounds/".Length) : $"Sounds/{path}";
+                clip = Resources.Load<AudioClip>(altPath);
+            }
+
             if (clip != null)
             {
                 clipCache.Add(path, clip);

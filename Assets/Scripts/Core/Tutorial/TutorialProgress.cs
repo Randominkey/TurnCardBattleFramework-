@@ -30,9 +30,10 @@ namespace Core.Tutorial
 
         public static void ResetAll()
         {
-            // Tutorial 관련 키를 리셋하거나 전체 필요 시 호출
+            ResetProgress("Battle_Iroha_1002");
+            ResetProgress("Tutorial_Global_Fever");
             PlayerPrefs.Save();
-            Debug.Log("[TutorialProgress] Reset all requested.");
+            Debug.Log("[TutorialProgress] Reset all tutorial progress completed (Iroha 1002, Global Fever).");
         }
     }
 }

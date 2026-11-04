@@ -14,6 +14,8 @@ namespace Core.Tutorial
     [RequireComponent(typeof(Canvas), typeof(GraphicRaycaster))]
     public class TutorialOverlayView : MonoBehaviour
     {
+        private const string DIMMED_LAYER_NAME = "TutorialDimmed";
+        private const string HIGHLIGHT_LAYER_NAME = "TutorialHighlight";
         private const int OVERLAY_SORTING_ORDER = 600;
         private const int HIGHLIGHT_SORTING_ORDER = 601;
 
@@ -23,18 +25,27 @@ namespace Core.Tutorial
         [SerializeField] private float animDuration = 0.3f;
         [SerializeField] private Color dimmedColor = new Color(0f, 0f, 0f, 0.65f);
 
-        // 하이라이트된 요소들의 원래 상태 복원을 위한 추적 리스트
+        // 하이라이트된 개별 Canvas 상태 추적용 레코드
+        private class CanvasRecord
+        {
+            public Canvas canvas;
+            public int originalLayerId;
+            public int originalOrder;
+            public bool originalOverride;
+            public bool dynamicallyAdded;
+            public GraphicRaycaster raycaster;
+            public bool originalRaycasterEnabled;
+            public bool raycasterDynamicallyAdded;
+        }
+
+        // 하이라이트된 UI 요소 전체 복원을 위한 추적 레코드
         private class HighlightRecord
         {
             public GameObject targetGo;
             public HighlightableUI highlightUI;
-            public Canvas dynamicCanvas;
-            public GraphicRaycaster dynamicRaycaster;
             public CanvasGroup targetCanvasGroup;
             public bool originalBlocksRaycasts;
-            public int originalOrder;
-            public bool originalOverride;
-            public bool dynamicallyAdded;
+            public List<CanvasRecord> canvasRecords = new List<CanvasRecord>();
         }
 
         private List<HighlightRecord> activeHighlights = new List<HighlightRecord>();
@@ -47,6 +58,7 @@ namespace Core.Tutorial
             if (myCanvas != null)
             {
                 myCanvas.overrideSorting = true;
+                myCanvas.sortingLayerName = DIMMED_LAYER_NAME;
                 myCanvas.sortingOrder = OVERLAY_SORTING_ORDER;
             }
 
@@ -179,11 +191,15 @@ namespace Core.Tutorial
 
             if (record.highlightUI != null)
             {
-                record.highlightUI.SetHighlight(true, HIGHLIGHT_SORTING_ORDER, allowInteraction);
+                record.highlightUI.SetHighlight(true, HIGHLIGHT_SORTING_ORDER, allowInteraction, HIGHLIGHT_LAYER_NAME);
             }
-            else if (record.dynamicRaycaster != null)
+
+            foreach (var cr in record.canvasRecords)
             {
-                record.dynamicRaycaster.enabled = allowInteraction;
+                if (cr.raycaster != null)
+                {
+                    cr.raycaster.enabled = allowInteraction;
+                }
             }
         }
 
@@ -192,7 +208,7 @@ namespace Core.Tutorial
             if (go == null) return;
             var record = new HighlightRecord { targetGo = go };
 
-            // CanvasGroup이 있는 경우 blocksRaycasts 제어
+            // 1. CanvasGroup이 있는 경우 blocksRaycasts 제어
             var cg = go.GetComponent<CanvasGroup>();
             if (cg != null)
             {
@@ -201,52 +217,87 @@ namespace Core.Tutorial
                 cg.blocksRaycasts = allowInteraction;
             }
 
-            // 1. 이미 HighlightableUI 컴포넌트가 붙어있는 경우
+            // 2. 타겟 본체에 Canvas가 없는 경우 동적으로 Canvas & GraphicRaycaster 추가
+            Canvas rootCanvas = go.GetComponent<Canvas>();
+            bool rootCanvasAdded = false;
+            GraphicRaycaster rootRaycaster = go.GetComponent<GraphicRaycaster>();
+            bool rootRaycasterAdded = false;
+
+            if (rootCanvas == null)
+            {
+                rootCanvas = go.AddComponent<Canvas>();
+                rootCanvasAdded = true;
+            }
+            if (rootRaycaster == null)
+            {
+                rootRaycaster = go.AddComponent<GraphicRaycaster>();
+                rootRaycasterAdded = true;
+            }
+
+            int highlightLayerId = SortingLayer.NameToID(HIGHLIGHT_LAYER_NAME);
+            int gameUiLayerId = SortingLayer.NameToID("GameUI");
+
+            // 3. [중요] 상태 변경 이전에 모든 Canvas의 원래 상태를 '먼저' 백업!
+            var allCanvases = go.GetComponentsInChildren<Canvas>(true);
+            foreach (var c in allCanvases)
+            {
+                if (c == null) continue;
+
+                int origLayer = c.sortingLayerID;
+                // 혹시 이미 하이라이트 레이어로 남아있는 경우 GameUI 레이어로 복원하도록 안전 보정
+                if (origLayer == highlightLayerId)
+                {
+                    origLayer = gameUiLayerId != 0 ? gameUiLayerId : 0;
+                }
+
+                var cr = new CanvasRecord
+                {
+                    canvas = c,
+                    originalLayerId = origLayer,
+                    originalOrder = c.sortingOrder,
+                    originalOverride = (c == rootCanvas && rootCanvasAdded) ? false : c.overrideSorting,
+                    dynamicallyAdded = (c == rootCanvas && rootCanvasAdded)
+                };
+
+                var gr = c.GetComponent<GraphicRaycaster>();
+                if (gr != null)
+                {
+                    cr.raycaster = gr;
+                    cr.originalRaycasterEnabled = gr.enabled;
+                    cr.raycasterDynamicallyAdded = (gr == rootRaycaster && rootRaycasterAdded);
+                }
+
+                record.canvasRecords.Add(cr);
+            }
+
+            // 4. 백업이 완료된 후, 이제 하이라이트 레이어로 승격 적용!
+            foreach (var cr in record.canvasRecords)
+            {
+                var c = cr.canvas;
+                if (c == null) continue;
+
+                c.overrideSorting = true;
+                c.sortingLayerName = HIGHLIGHT_LAYER_NAME;
+
+                // 동적으로 추가된 루트 캔버스인 경우 기본 하이라이트 오더(601) 부여
+                // 기존 캔버스(CardView의 10, FXRoot의 12 등)는 고유 상대 순서를 유지
+                if (cr.dynamicallyAdded)
+                {
+                    c.sortingOrder = HIGHLIGHT_SORTING_ORDER;
+                }
+
+                if (cr.raycaster != null)
+                {
+                    cr.raycaster.enabled = allowInteraction;
+                }
+            }
+
+            // 5. HighlightableUI가 있는 경우 추적 등록
             var hUI = go.GetComponent<HighlightableUI>();
             if (hUI != null)
             {
                 record.highlightUI = hUI;
-                hUI.SetHighlight(true, HIGHLIGHT_SORTING_ORDER, allowInteraction);
-                activeHighlights.Add(record);
-                return;
             }
-
-            // 2. HighlightableUI는 없지만 기존에 자체 Canvas가 붙어있었던 경우
-            var canvas = go.GetComponent<Canvas>();
-            if (canvas != null)
-            {
-                record.dynamicCanvas = canvas;
-                record.originalOrder = canvas.sortingOrder;
-                record.originalOverride = canvas.overrideSorting;
-                record.dynamicallyAdded = false;
-
-                canvas.overrideSorting = true;
-                canvas.sortingOrder = HIGHLIGHT_SORTING_ORDER;
-
-                var raycaster = go.GetComponent<GraphicRaycaster>();
-                if (raycaster != null)
-                {
-                    record.dynamicRaycaster = raycaster;
-                    raycaster.enabled = allowInteraction;
-                }
-
-                activeHighlights.Add(record);
-                return;
-            }
-
-            // 3. Canvas가 전혀 없는 일반 UI인 경우 동적으로 추가하여 승격
-            canvas = go.AddComponent<Canvas>();
-            record.dynamicCanvas = canvas;
-            record.originalOrder = 0;
-            record.originalOverride = false;
-            record.dynamicallyAdded = true;
-
-            canvas.overrideSorting = true;
-            canvas.sortingOrder = HIGHLIGHT_SORTING_ORDER;
-
-            var gr = go.AddComponent<GraphicRaycaster>();
-            gr.enabled = allowInteraction;
-            record.dynamicRaycaster = gr;
 
             activeHighlights.Add(record);
         }
@@ -255,37 +306,62 @@ namespace Core.Tutorial
         {
             if (record == null) return;
 
+            // 1. CanvasGroup 원복
             if (record.targetCanvasGroup != null)
             {
                 record.targetCanvasGroup.blocksRaycasts = record.originalBlocksRaycasts;
             }
 
-            if (record.highlightUI != null)
+            int highlightLayerId = SortingLayer.NameToID(HIGHLIGHT_LAYER_NAME);
+            int gameUiLayerId = SortingLayer.NameToID("GameUI");
+
+            // 2. 하위 캔버스들 역순으로 정확히 원래 레이어 및 오더로 복원
+            for (int i = record.canvasRecords.Count - 1; i >= 0; i--)
             {
-                record.highlightUI.SetHighlight(false);
-            }
-            else if (record.dynamicCanvas != null)
-            {
-                if (record.dynamicallyAdded)
+                var cr = record.canvasRecords[i];
+                if (cr.canvas == null) continue;
+
+                if (cr.dynamicallyAdded)
                 {
-                    record.dynamicCanvas.overrideSorting = false;
-                    record.dynamicCanvas.enabled = false;
-                    if (record.dynamicRaycaster != null)
+                    cr.canvas.overrideSorting = false;
+                    cr.canvas.enabled = false;
+                    if (cr.raycaster != null)
                     {
-                        record.dynamicRaycaster.enabled = false;
-                        Destroy(record.dynamicRaycaster);
+                        cr.raycaster.enabled = false;
+                        Destroy(cr.raycaster);
                     }
-                    Destroy(record.dynamicCanvas);
+                    Destroy(cr.canvas);
                 }
                 else
                 {
-                    record.dynamicCanvas.overrideSorting = record.originalOverride;
-                    record.dynamicCanvas.sortingOrder = record.originalOrder;
-                    if (record.dynamicRaycaster != null)
+                    int targetLayerId = cr.originalLayerId;
+                    if (targetLayerId == highlightLayerId)
                     {
-                        record.dynamicRaycaster.enabled = true;
+                        targetLayerId = gameUiLayerId != 0 ? gameUiLayerId : 0;
+                    }
+
+                    cr.canvas.overrideSorting = cr.originalOverride;
+                    cr.canvas.sortingLayerID = targetLayerId;
+                    cr.canvas.sortingOrder = cr.originalOrder;
+
+                    if (cr.raycaster != null)
+                    {
+                        if (cr.raycasterDynamicallyAdded)
+                        {
+                            Destroy(cr.raycaster);
+                        }
+                        else
+                        {
+                            cr.raycaster.enabled = cr.originalRaycasterEnabled;
+                        }
                     }
                 }
+            }
+
+            // 3. HighlightableUI 복원 (내부 캐시 동기화)
+            if (record.highlightUI != null)
+            {
+                record.highlightUI.SetHighlight(false);
             }
         }
 

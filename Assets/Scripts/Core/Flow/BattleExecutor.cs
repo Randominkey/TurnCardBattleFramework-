@@ -86,7 +86,7 @@ namespace Core.Flow
         }
 
         /// <summary>
-        /// [New 261013] 스테이지 시작 시 환경 변화 요소 무작위 추첨
+        /// [New 261013] 스테이지 시작 시 환경 변화 요소 무작위 추첨 (None 포함 전 스테이지 완전 무작위)
         /// </summary>
         private EnvironmentType DetermineEnvironment()
         {
@@ -97,16 +97,11 @@ namespace Core.Flow
             }
 #endif
 
-            // 튜토리얼 스테이지(1001~1099)는 환경 요소를 비활성화하여 기본 룰 학습 보장
-            if (Core.Common.GameConstants.IsTutorialStage(executeId))
-            {
-                return EnvironmentType.None;
-            }
-
-            // 현재 확정된 2종(아이리스의 희망, 무메이의 문명) 중 무작위 1개 추첨
-            // (향후 TableManager 연동 시 테이블 데이터 기반 선택으로 확장)
+            // 기본 3종(None, 아이리스의 희망, 무메이의 문명) 중 무작위 1개 추첨
+            // 스테이지 진입 및 재시작 시마다 매번 새로 추첨됩니다.
             EnvironmentType[] availableEnvironments = new EnvironmentType[]
             {
+                EnvironmentType.None,
                 EnvironmentType.IrysHope,
                 EnvironmentType.MumeiCivilization
             };
@@ -251,17 +246,8 @@ namespace Core.Flow
             // [New] 라운드 시작 전 UI 슬라이드 인 (타이밍 앞당김)
             if (battleView != null) battleView.SlideInHands(0.4f, null);
 
-            // 라운드 시작 연출 (전용 연출 시스템 ProductionManager 활용)
-            if (battleView != null && battleView.ProductionManager != null)
-            {
-                var sequencer = new ActionSequencer();
-                sequencer.AddCommand(new ProductionCommand(battleView.ProductionManager, ProductionType.RoundStart, data: battleModel.currentRound.Value));
-                sequencer.Play(() => ChangePhase(BattlePhase.Command));
-            }
-            else
-            {
-                ChangePhase(BattlePhase.Command);
-            }
+            // [Round 연출 제거] 라운드 시작 연출 생략하고 바로 Command 페이즈 전환
+            ChangePhase(BattlePhase.Command);
         }
 
         public void ExecuteSpecialSkill(BattleCharacterModel owner) => specialSkillHandler.ExecuteSpecialSkill(owner);
@@ -275,6 +261,9 @@ namespace Core.Flow
         {
             Debug.Log("[Battle] Waiting for Player Command...");
 
+            // [New] 라운드 진입 시점에 NPC 의사결정을 미리 확정 (유저 행동과 독립적 결정)
+            PreCalculateNPCMove();
+
             // [Tutorial] 1라운드 시작 시 모든 UI 접근 권한이 열리기 직전에 튜토리얼 딤드 및 통제 시작
             if (Core.Common.GameConstants.IsTutorialStage(executeId) && battleModel != null && battleModel.currentRound.Value == 1)
             {
@@ -285,52 +274,13 @@ namespace Core.Flow
             }
         }
 
-
-        private void ProcessPlayerDraw()
+        /// <summary>
+        /// 라운드 진입 시점에 NPC가 낼 패나 드로우 여부를 미리 결정합니다.
+        /// </summary>
+        private void PreCalculateNPCMove()
         {
-            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
-            int maxCards = gameSet?.maxCards ?? 8;
-
-            if (battleModel.player.hand.Count >= maxCards)
-            {
-                if (battleView != null) battleView.ShowWarningMessage("FULL HAND");
-                return;
-            }
-
-            // [Fix] 명시적 상태 초기화 (이전 잔류 데이터 방지)
-            battleModel.playerSelectedCards.Clear();
             battleModel.enemySelectedCards.Clear();
-            battleModel.playerChoseDraw = true;
             battleModel.enemyChoseDraw = false;
-
-            var npcSelected = BattleLogic.CalculateNPCMove(battleModel);
-            foreach (var card in npcSelected)
-            {
-                battleModel.enemySelectedCards.Add(card);
-                // [Fix] 핸드에서 즉시 제거하지 않음 (HandleProcess에서 통합 처리)
-            }
-
-            ChangePhase(BattlePhase.Process);
-        }
-
-        private void ProcessPlayerTurn(List<CardInstance> selectedCards)
-        {
-            // [Fix] 명시적 상태 초기화
-            battleModel.playerSelectedCards.Clear();
-            battleModel.enemySelectedCards.Clear();
-            battleModel.playerChoseDraw = false;
-            battleModel.enemyChoseDraw = false;
-
-            foreach (var card in selectedCards)
-            {
-                battleModel.playerSelectedCards.Add(card);
-            }
-
-            // 1라운드 플레이어 선택 속성 기록 (2R, 3R 드로우 계산용)
-            if (battleModel.currentRound.Value == 1 && selectedCards.Count > 0 && cardDealer != null)
-            {
-                cardDealer.PlayerFirstRoundElement = selectedCards[0].TableData.element;
-            }
 
             // 튜토리얼 스크립트 대응패 우선 확인
             List<CardInstance> npcSelected = null;
@@ -344,9 +294,53 @@ namespace Core.Flow
                 npcSelected = BattleLogic.CalculateNPCMove(battleModel);
             }
 
-            foreach (var card in npcSelected)
+            if (npcSelected != null)
             {
-                battleModel.enemySelectedCards.Add(card);
+                foreach (var card in npcSelected)
+                {
+                    battleModel.enemySelectedCards.Add(card);
+                }
+            }
+
+            if (battleView != null)
+            {
+                battleView.RefreshNpcMoveCheatBanner();
+            }
+        }
+
+        private void ProcessPlayerDraw()
+        {
+            var gameSet = TableManager.Instance.GetTable<GameSetTable>().Get(0);
+            int maxCards = gameSet?.maxCards ?? 8;
+
+            if (battleModel.player.hand.Count >= maxCards)
+            {
+                if (battleView != null) battleView.ShowWarningMessage("FULL HAND");
+                return;
+            }
+
+            // 플레이어 선택만 드로우로 설정 (NPC는 라운드 진입 시 결정된 상태 유지)
+            battleModel.playerSelectedCards.Clear();
+            battleModel.playerChoseDraw = true;
+
+            ChangePhase(BattlePhase.Process);
+        }
+
+        private void ProcessPlayerTurn(List<CardInstance> selectedCards)
+        {
+            // 플레이어 선택 카드 등록 (NPC는 라운드 진입 시 결정된 상태 유지)
+            battleModel.playerSelectedCards.Clear();
+            battleModel.playerChoseDraw = false;
+
+            foreach (var card in selectedCards)
+            {
+                battleModel.playerSelectedCards.Add(card);
+            }
+
+            // 1라운드 플레이어 선택 속성 기록 (2R, 3R 드로우 계산용)
+            if (battleModel.currentRound.Value == 1 && selectedCards.Count > 0 && cardDealer != null)
+            {
+                cardDealer.PlayerFirstRoundElement = selectedCards[0].TableData.element;
             }
 
             ChangePhase(BattlePhase.Process);
@@ -400,8 +394,8 @@ namespace Core.Flow
             battleModel.currentRound.Value++;
             battleModel.ResetRoundSelection();
 
-            if (battleView != null) battleView.PlayRoundTransition(() => ChangePhase(BattlePhase.RoundStart));
-            else ChangePhase(BattlePhase.RoundStart);
+            // [Round 연출 제거] 라운드 전환 연출 없이 바로 다음 라운드로 진행
+            ChangePhase(BattlePhase.RoundStart);
         }
 
         private void HandleResult()

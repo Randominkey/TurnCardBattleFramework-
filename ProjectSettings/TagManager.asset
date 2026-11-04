@@ -41,3 +41,30 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: GameUI
+    uniqueID: 10001
+    locked: 0
+  - name: ProductionDimmed
+    uniqueID: 10002
+    locked: 0
+  - name: ProductionHighlight
+    uniqueID: 10003
+    locked: 0
+  - name: TutorialDimmed
+    uniqueID: 10004
+    locked: 0
+  - name: TutorialHighlight
+    uniqueID: 10005
+    locked: 0
+  - name: TutorialNarrator
+    uniqueID: 10006
+    locked: 0
+  - name: Tooltip
+    uniqueID: 10007
+    locked: 0
+  - name: Popup
+    uniqueID: 10008
+    locked: 0
+  - name: System
+    uniqueID: 10009
+    locked: 0

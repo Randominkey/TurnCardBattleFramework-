@@ -47,6 +47,18 @@ namespace Core.Utils
 
         public TextAsset LoadXmlData(string fileName)
         {
+#if UNITY_EDITOR
+            var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if (!string.IsNullOrEmpty(activeScene.name) &&
+                activeScene.name.IndexOf("Demo", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                var demoXml = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>($"Assets/Demo/Resources/XMLData/{fileName}.xml");
+                if (demoXml != null)
+                {
+                    return demoXml;
+                }
+            }
+#endif
             return Resources.Load<TextAsset>($"XMLData/{fileName}");
         }
     }
