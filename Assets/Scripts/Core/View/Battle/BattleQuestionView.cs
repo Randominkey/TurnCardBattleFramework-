@@ -39,6 +39,12 @@ namespace Core.View
         private readonly List<QuestionButtonSlot> questionSlots = new List<QuestionButtonSlot>();
         private CompositeDisposable bindDisposables = new CompositeDisposable();
 
+        // [26.11.07 추가 기획] 거짓 대답 연출용 트윈, 코루틴 및 원래 좌표 캐시
+        private Tween answerBubbleShakeTween;
+        private Coroutine typingCoroutine;
+        private Vector2 answerBubbleOriginalAnchoredPosition;
+        private bool hasCachedBubblePosition = false;
+
         private class QuestionButtonSlot
         {
             public int index;
@@ -64,6 +70,12 @@ namespace Core.View
             EnsureEntryButton(uiParent, playerFigure);
             EnsureAnswerBubble(uiParent, enemyFigure);
             EnsureQuestionModal(uiParent);
+
+            if (!hasCachedBubblePosition && answerBubbleRoot != null)
+            {
+                answerBubbleOriginalAnchoredPosition = answerBubbleRoot.anchoredPosition;
+                hasCachedBubblePosition = true;
+            }
 
             SetQuestionModalVisible(false);
             SetAnswerBubbleVisible(false, false);
@@ -113,6 +125,8 @@ namespace Core.View
 
         private void OnDestroy()
         {
+            StopTyping();
+            StopAnswerBubbleShake();
             bindDisposables.Dispose();
         }
 
@@ -142,6 +156,8 @@ namespace Core.View
         public void HideAllForClash()
         {
             SetQuestionModalVisible(false);
+            StopTyping();
+            StopAnswerBubbleShake();
             if (battleModel != null && battleModel.question != null)
             {
                 battleModel.question.ClearActiveAnswer();
@@ -245,20 +261,199 @@ namespace Core.View
         {
             if (answerBubbleRoot == null) return;
 
-            if (answerTextIdHolder != null && result.answerStringId > 0)
+            StopTyping();
+            StopAnswerBubbleShake();
+            answerBubbleRoot.DOKill();
+
+            if (!hasCachedBubblePosition)
             {
-                answerTextIdHolder.SetId(result.answerStringId);
+                answerBubbleOriginalAnchoredPosition = answerBubbleRoot.anchoredPosition;
+                hasCachedBubblePosition = true;
             }
-            else if (answerTextIdHolder != null)
+            else
             {
-                answerTextIdHolder.SetRawText(result.answerText);
+                answerBubbleRoot.anchoredPosition = answerBubbleOriginalAnchoredPosition;
             }
-            else if (answerBubbleText != null)
+
+            // 전체 대답 텍스트 해석
+            string fullText = null;
+            if (result.answerStringId > 0 && TableManager.Instance != null)
             {
-                answerBubbleText.text = result.answerText;
+                var stringRow = TableManager.Instance.GetTable<StringTable>()?.Get(result.answerStringId);
+                if (stringRow != null)
+                {
+                    fullText = stringRow.Get(TableManager.Instance.currentLanguage.Value);
+                }
+            }
+            if (string.IsNullOrEmpty(fullText))
+            {
+                fullText = result.answerText ?? "";
             }
 
             SetAnswerBubbleVisible(true, true);
+
+            bool isLie = (result.answerType == QuestionAnswerType.Lie);
+
+            // 1. 거짓 대답 시: 사라지기 전까지 계속 흔들림 (오차 누적 방지 리셋 포함)
+            if (isLie)
+            {
+                StartContinuousShake();
+            }
+
+            // 2. 타이핑 연출 (거짓말일 경우 머뭇거림 감속/일시정지 포함)
+            typingCoroutine = StartCoroutine(TypewriterRoutine(fullText, result.answerStringId, isLie));
+        }
+
+        private void StartContinuousShake()
+        {
+            StopAnswerBubbleShake();
+
+            // 0.4초 주기로 미세하게 흔들린 후, 매 주기마다 원래 좌표로 리셋하여 오차/위치 이탈 누적 원천 차단
+            Sequence shakeSeq = DOTween.Sequence();
+            shakeSeq.Append(answerBubbleRoot.DOShakePosition(
+                duration: 0.4f,
+                strength: new Vector3(5f, 2.5f, 0f),
+                vibrato: 12,
+                randomness: 45,
+                snapping: false,
+                fadeOut: false
+            ));
+            shakeSeq.AppendCallback(() =>
+            {
+                if (answerBubbleRoot != null && hasCachedBubblePosition)
+                {
+                    answerBubbleRoot.anchoredPosition = answerBubbleOriginalAnchoredPosition;
+                }
+            });
+            shakeSeq.SetLoops(-1);
+            answerBubbleShakeTween = shakeSeq;
+        }
+
+        private void StopAnswerBubbleShake()
+        {
+            if (answerBubbleShakeTween != null)
+            {
+                answerBubbleShakeTween.Kill();
+                answerBubbleShakeTween = null;
+            }
+            if (answerBubbleRoot != null && hasCachedBubblePosition)
+            {
+                answerBubbleRoot.anchoredPosition = answerBubbleOriginalAnchoredPosition;
+            }
+        }
+
+        private void StopTyping()
+        {
+            if (typingCoroutine != null)
+            {
+                StopCoroutine(typingCoroutine);
+                typingCoroutine = null;
+            }
+            if (answerBubbleText != null)
+            {
+                answerBubbleText.maxVisibleCharacters = int.MaxValue;
+            }
+        }
+
+        private System.Collections.IEnumerator TypewriterRoutine(string rawText, int stringId, bool isLie)
+        {
+            if (answerBubbleText == null) yield break;
+
+            var (cleanText, pauseIndex, pauseDuration) = ParseHesitationMarker(rawText, isLie);
+
+            ApplyBubbleText(cleanText, stringId);
+            answerBubbleText.ForceMeshUpdate();
+
+            int totalVisible = answerBubbleText.textInfo.characterCount;
+            answerBubbleText.maxVisibleCharacters = 0;
+
+            for (int i = 0; i <= totalVisible; i++)
+            {
+                answerBubbleText.maxVisibleCharacters = i;
+
+                if (isLie && pauseIndex > 0 && i == pauseIndex)
+                {
+                    // 머뭇거리는 타이밍: 타이핑 속도가 멈추거나 대폭 감속 (일시정지)
+                    yield return new WaitForSeconds(pauseDuration);
+                }
+                else if (isLie && pauseIndex > 2 && i >= pauseIndex - 2 && i < pauseIndex)
+                {
+                    // 머뭇거리기 직전 1~2글자: 타이핑 속도 감속
+                    yield return new WaitForSeconds(0.08f);
+                }
+                else
+                {
+                    // 일반 타이핑 간격
+                    yield return new WaitForSeconds(isLie ? 0.035f : 0.025f);
+                }
+            }
+
+            answerBubbleText.maxVisibleCharacters = int.MaxValue;
+            typingCoroutine = null;
+        }
+
+        private (string cleanText, int pauseIndex, float pauseDuration) ParseHesitationMarker(string rawText, bool isLie)
+        {
+            if (string.IsNullOrEmpty(rawText) || !isLie)
+            {
+                return (rawText ?? "", -1, 0f);
+            }
+
+            // 1. 추후 StringTable에 적용될 수 있는 명시적 마커/태그 우선 지원 (<pause>, <wait>, ^, | 등)
+            string[] explicitTags = new string[] { "<pause>", "<wait>", "^", "|" };
+            foreach (var tag in explicitTags)
+            {
+                int tagIdx = rawText.IndexOf(tag, StringComparison.OrdinalIgnoreCase);
+                if (tagIdx >= 0)
+                {
+                    string cleaned = rawText.Remove(tagIdx, tag.Length);
+                    return (cleaned, tagIdx, 0.45f);
+                }
+            }
+
+            // 2. 태그 미지정 시: 문장 전반부(1~12자 내) 자연 문장부호(말줄임표, 쉼표, 느낌표)를 머뭇거림 지점으로 자동 감지
+            int ellipsisIdx = rawText.IndexOf("…", StringComparison.Ordinal);
+            if (ellipsisIdx < 0) ellipsisIdx = rawText.IndexOf("...", StringComparison.Ordinal);
+            int commaIdx = rawText.IndexOf(',', StringComparison.Ordinal);
+            int exclamationIdx = rawText.IndexOf('!', StringComparison.Ordinal);
+
+            int splitIdx = -1;
+            if (ellipsisIdx >= 0 && ellipsisIdx <= 12)
+            {
+                splitIdx = rawText.IndexOf("…", StringComparison.Ordinal) >= 0 ? ellipsisIdx + 1 : ellipsisIdx + 3;
+            }
+            else if (commaIdx >= 0 && commaIdx <= 10)
+            {
+                splitIdx = commaIdx + 1;
+            }
+            else if (exclamationIdx >= 0 && exclamationIdx <= 10)
+            {
+                splitIdx = exclamationIdx + 1;
+            }
+            else
+            {
+                // 3. 평문 폴백: 첫 어절 공백 또는 앞 3글자 뒤
+                int spaceIdx = rawText.IndexOf(' ', StringComparison.Ordinal);
+                splitIdx = (spaceIdx > 0 && spaceIdx <= 6) ? spaceIdx : Mathf.Min(rawText.Length, 3);
+            }
+
+            return (rawText, splitIdx, 0.45f);
+        }
+
+        private void ApplyBubbleText(string text, int stringId)
+        {
+            if (answerTextIdHolder != null && stringId > 0)
+            {
+                answerTextIdHolder.SetId(stringId);
+            }
+            else if (answerTextIdHolder != null)
+            {
+                answerTextIdHolder.SetRawText(text);
+            }
+            else if (answerBubbleText != null)
+            {
+                answerBubbleText.text = text;
+            }
         }
 
         private void SetQuestionModalVisible(bool visible)
@@ -273,6 +468,7 @@ namespace Core.View
         {
             if (answerBubbleRoot == null) return;
 
+            StopTyping();
             answerBubbleRoot.DOKill();
 
             if (visible)
@@ -290,6 +486,8 @@ namespace Core.View
             }
             else
             {
+                StopAnswerBubbleShake();
+
                 if (animate && answerBubbleRoot.gameObject.activeSelf)
                 {
                     answerBubbleRoot.DOScale(0f, 0.18f).SetEase(Ease.InBack).OnComplete(() =>
@@ -298,6 +496,7 @@ namespace Core.View
                         {
                             answerBubbleRoot.gameObject.SetActive(false);
                             answerBubbleRoot.localScale = Vector3.one;
+                            StopAnswerBubbleShake();
                         }
                     });
                 }
@@ -305,6 +504,7 @@ namespace Core.View
                 {
                     answerBubbleRoot.gameObject.SetActive(false);
                     answerBubbleRoot.localScale = Vector3.one;
+                    StopAnswerBubbleShake();
                 }
             }
         }

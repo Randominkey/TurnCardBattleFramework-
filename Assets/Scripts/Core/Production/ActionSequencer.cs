@@ -20,7 +20,6 @@ namespace Core.View
         private Queue<IActionCommand> commandQueue = new Queue<IActionCommand>();
         private bool isPlaying = false;
         private Action currentOnAllComplete;
-        private int sequenceVersion = 0;
 
         public bool IsPlaying => isPlaying;
 
@@ -29,7 +28,6 @@ namespace Core.View
         public void Stop()
         {
             Debug.Log("[Sequencer] Stop called. Clearing queue and isPlaying=false.");
-            sequenceVersion++;
             commandQueue.Clear();
             isPlaying = false;
             currentOnAllComplete = null;
@@ -68,17 +66,16 @@ namespace Core.View
                 return;
             }
 
-            int capturedVersion = sequenceVersion;
             var command = commandQueue.Dequeue();
             Debug.Log($"[Sequencer] Executing command: {command.GetType().Name}");
             command.Execute(() => {
-                if (isPlaying && capturedVersion == sequenceVersion)
+                if (isPlaying)
                 {
                     ExecuteNext();
                 }
                 else
                 {
-                    Debug.Log("[Sequencer] Command finished but sequencer was stopped or restarted. Not advancing.");
+                    Debug.Log("[Sequencer] Command finished but sequencer was stopped. Not advancing.");
                 }
             });
         }

@@ -14,9 +14,11 @@ namespace Core.Battle
         private readonly BattleModel battleModel;
         private readonly List<QuestionChoiceData> questions;
         private readonly bool[] usedFlags;
+        private readonly int[] assignedQuestionIds;
 
         public IReadOnlyList<QuestionChoiceData> Questions => questions;
         public int QuestionCount => questions.Count;
+        public IReadOnlyList<int> AssignedQuestionIds => assignedQuestionIds;
 
         /// <summary>
         /// 남은 사용 가능 질문 횟수
@@ -36,7 +38,9 @@ namespace Core.Battle
         public BattleQuestionModel(BattleModel battleModel)
         {
             this.battleModel = battleModel;
-            var loadedQuestions = QuestionDataProvider.GetQuestions();
+            this.assignedQuestionIds = battleModel?.battleTable?.QuestionIds;
+
+            var loadedQuestions = QuestionDataProvider.GetQuestions(this.assignedQuestionIds);
             this.questions = new List<QuestionChoiceData>(loadedQuestions);
             this.usedFlags = new bool[this.questions.Count];
             this.remainingQuestionCount = new ReactiveProperty<int>(this.questions.Count);
@@ -110,17 +114,20 @@ namespace Core.Battle
             // 현재 NPC의 행동 계획 상황 판별
             QuestionSituation situation = EvaluateCurrentEnemySituation();
 
-            // 진실(60%) / 거짓(38%) / 이스터에그(2%) 확률 추첨
-            float roll = customRandom01 ?? Random.value;
-            QuestionAnswerType answerType = QuestionDataProvider.RollAnswerType(roll);
-
             int enemyId = battleModel?.enemy?.tableData != null ? battleModel.enemy.tableData.id : 102;
+            int targetQuestionTableId = (assignedQuestionIds != null && questionIndex >= 0 && questionIndex < assignedQuestionIds.Length)
+                ? assignedQuestionIds[questionIndex]
+                : -1;
 
-            result = QuestionDataProvider.GetAnswer(enemyId, questionIndex, situation, answerType);
+            // 진실(60%) / 거짓(38%) / 이스터에그(2%) 확률 추첨 (테이블 행별 AnswerProp 기반)
+            float roll = customRandom01 ?? Random.value;
+            QuestionAnswerType answerType = QuestionDataProvider.RollAnswerType(enemyId, questionIndex, roll, targetQuestionTableId);
+
+            result = QuestionDataProvider.GetAnswer(enemyId, questionIndex, situation, answerType, targetQuestionTableId);
             latestAnswer.Value = result;
             hasActiveAnswer.Value = true;
 
-            Debug.Log($"[Question] Q:{questionIndex} | EnemySituation:{situation} | Roll:{roll:F3} -> {answerType} | Answer:\"{result.answerText}\"");
+            Debug.Log($"[Question] Q:{questionIndex} (TableId:{targetQuestionTableId}) | EnemyId:{enemyId} | EnemySituation:{situation} | Roll:{roll:F3} -> {answerType} | Answer:\"{result.answerText}\" (StringId:{result.answerStringId})");
             return true;
         }
 

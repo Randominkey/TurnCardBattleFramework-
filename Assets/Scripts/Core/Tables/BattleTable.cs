@@ -19,6 +19,7 @@ namespace Core.Table
         [XmlElement("WinIllust")] public string winIllustName;
         [XmlElement("PONValues")] public string ponValuesRaw;
         [XmlElement("EliteValues")] public string eliteValuesRaw;
+        [XmlElement("QuestionIds")] public string questionIdsRaw;
 
         public Vector2Int PlayerAxis => TableUtil.ParseVector2Int(playerAxisRaw);
         public Vector2Int EnemyAxis => TableUtil.ParseVector2Int(enemyAxisRaw);
@@ -32,6 +33,9 @@ namespace Core.Table
 
         private float[] cachedEliteValues;
         public float[] EliteValues => cachedEliteValues ??= TableUtil.ParseFloatArray(eliteValuesRaw);
+
+        private int[] cachedQuestionIds;
+        public int[] QuestionIds => cachedQuestionIds ??= TableUtil.ParseIntArray(questionIdsRaw);
     }
 
     [Serializable]

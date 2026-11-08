@@ -1,211 +1,39 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <QuestionTable>
 	<Row>
-		<Id>1</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>0</QuestionIndex>
-		<Situation>Rock</Situation>
-		<QuestionText>이번 라운드에는 어떤 카드를 낼 생각이야?</QuestionText>
-		<TruthText>솔직히 말해두지. 이번에는 묵직한 바위 공격으로 정면 돌파할 생각이다.</TruthText>
-		<LieText>이번에는 날카로운 가위 공격으로 승부를 볼 생각이다.</LieText>
-		<EasterEggText>심리전에 말려들 생각은 없다. 직접 부딪쳐서 확인해 봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
+		<Id>1001</Id>
+		<DevNote>[데모 듀얼리스트] 유도신문 질문 1</DevNote>
+		<QuestionStringId>910001</QuestionStringId>
+		<AnswerStringIds>910201, 910202, 910203, 910204</AnswerStringIds>
+		<LieStringIds>910211, 910212, 910213, 910214</LieStringIds>
+		<EasterEggStringId>910219</EasterEggStringId>
+		<AnswerProp>0.6, 0.38, 0.02</AnswerProp>
 	</Row>
 	<Row>
-		<Id>2</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>0</QuestionIndex>
-		<Situation>Scissors</Situation>
-		<QuestionText>이번 라운드에는 어떤 카드를 낼 생각이야?</QuestionText>
-		<TruthText>굳이 숨기지 않겠다. 이번에는 예리한 가위 공격으로 빈틈을 노리겠다.</TruthText>
-		<LieText>이번에는 보 속성 카드로 너의 공격을 받아칠 생각이다.</LieText>
-		<EasterEggText>심리전에 말려들 생각은 없다. 직접 부딪쳐서 확인해 봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
+		<Id>1002</Id>
+		<DevNote>[데모 듀얼리스트] 유도신문 질문 2</DevNote>
+		<QuestionStringId>910002</QuestionStringId>
+		<AnswerStringIds>910221, 910222, 910223, 910224</AnswerStringIds>
+		<LieStringIds>910231, 910232, 910233, 910234</LieStringIds>
+		<EasterEggStringId>910239</EasterEggStringId>
+		<AnswerProp>0.6, 0.38, 0.02</AnswerProp>
 	</Row>
 	<Row>
-		<Id>3</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>0</QuestionIndex>
-		<Situation>Paper</Situation>
-		<QuestionText>이번 라운드에는 어떤 카드를 낼 생각이야?</QuestionText>
-		<TruthText>이번 라운드에는 보 속성 카드를 내서 흐름을 가져올 생각이다.</TruthText>
-		<LieText>이번 라운드에는 무리하지 않고 카드를 한 장 드로우할 생각이다.</LieText>
-		<EasterEggText>심리전에 말려들 생각은 없다. 직접 부딪쳐서 확인해 봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
+		<Id>1003</Id>
+		<DevNote>[데모 듀얼리스트] 유도신문 질문 3</DevNote>
+		<QuestionStringId>910003</QuestionStringId>
+		<AnswerStringIds>910241, 910242, 910243, 910244</AnswerStringIds>
+		<LieStringIds>910251, 910252, 910253, 910254</LieStringIds>
+		<EasterEggStringId>910259</EasterEggStringId>
+		<AnswerProp>0.6, 0.38, 0.02</AnswerProp>
 	</Row>
 	<Row>
-		<Id>4</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>0</QuestionIndex>
-		<Situation>Draw</Situation>
-		<QuestionText>이번 라운드에는 어떤 카드를 낼 생각이야?</QuestionText>
-		<TruthText>지금은 카드를 한 장 드로우하며 다음 공격 기회를 준비할 생각이다.</TruthText>
-		<LieText>이번에는 묵직한 바위 공격으로 정면 돌파할 생각이다.</LieText>
-		<EasterEggText>심리전에 말려들 생각은 없다. 직접 부딪쳐서 확인해 봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>5</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>1</QuestionIndex>
-		<Situation>Rock</Situation>
-		<QuestionText>네 손패의 주력 속성이 무엇인지 이미 읽었어.</QuestionText>
-		<TruthText>눈치가 빠르군. 그래, 이번에는 바위 카드로 강하게 밀어붙이겠다.</TruthText>
-		<LieText>글쎄, 내 손패의 주력은 보 속성이다. 보 카드로 제압해 주지.</LieText>
-		<EasterEggText>표정 관리가 완벽하다고 생각했는데… 어디 한 번 맞춰 봐라.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>6</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>1</QuestionIndex>
-		<Situation>Scissors</Situation>
-		<QuestionText>네 손패의 주력 속성이 무엇인지 이미 읽었어.</QuestionText>
-		<TruthText>제법이군. 네 예상대로 가위 카드를 준비해 두었다.</TruthText>
-		<LieText>아쉽게도 빗나갔다. 이번 턴에는 카드를 드로우하며 전열을 가다듬겠다.</LieText>
-		<EasterEggText>표정 관리가 완벽하다고 생각했는데… 어디 한 번 맞춰 봐라.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>7</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>1</QuestionIndex>
-		<Situation>Paper</Situation>
-		<QuestionText>네 손패의 주력 속성이 무엇인지 이미 읽었어.</QuestionText>
-		<TruthText>읽혔다면 어쩔 수 없지. 이번 수는 보 카드다.</TruthText>
-		<LieText>과연 그럴까? 내 손에는 바위 카드가 준비되어 있다.</LieText>
-		<EasterEggText>표정 관리가 완벽하다고 생각했는데… 어디 한 번 맞춰 봐라.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>8</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>1</QuestionIndex>
-		<Situation>Draw</Situation>
-		<QuestionText>네 손패의 주력 속성이 무엇인지 이미 읽었어.</QuestionText>
-		<TruthText>지금은 공격할 때가 아니야. 카드를 한 장 보충(드로우)해 두겠다.</TruthText>
-		<LieText>네 예상과 달리 이번에는 가위 카드로 공격할 계획이다.</LieText>
-		<EasterEggText>표정 관리가 완벽하다고 생각했는데… 어디 한 번 맞춰 봐라.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>9</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>2</QuestionIndex>
-		<Situation>Rock</Situation>
-		<QuestionText>잠깐, 이번 턴에는 카드를 뽑으며 숨을 고를 셈인가?</QuestionText>
-		<TruthText>아니, 숨을 고를 생각은 없다. 곧장 바위 카드로 공격하겠다.</TruthText>
-		<LieText>들켰군. 이번 턴에는 조용히 카드를 한 장 드로우할 생각이다.</LieText>
-		<EasterEggText>패를 모으는 타이밍과 공격하는 타이밍, 그것이 승부의 핵심이지.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>10</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>2</QuestionIndex>
-		<Situation>Scissors</Situation>
-		<QuestionText>잠깐, 이번 턴에는 카드를 뽑으며 숨을 고를 셈인가?</QuestionText>
-		<TruthText>천만에. 지금은 가위 카드로 공세를 이어갈 타이밍이다.</TruthText>
-		<LieText>그래, 지금은 바위 카드로 묵직하게 나갈 차례다.</LieText>
-		<EasterEggText>패를 모으는 타이밍과 공격하는 타이밍, 그것이 승부의 핵심이지.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>11</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>2</QuestionIndex>
-		<Situation>Paper</Situation>
-		<QuestionText>잠깐, 이번 턴에는 카드를 뽑으며 숨을 고를 셈인가?</QuestionText>
-		<TruthText>드로우할 필요 없다. 이미 준비된 보 카드로 승부를 내겠다.</TruthText>
-		<LieText>아니, 이번에는 가위 카드로 날카롭게 파고들 생각이다.</LieText>
-		<EasterEggText>패를 모으는 타이밍과 공격하는 타이밍, 그것이 승부의 핵심이지.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>12</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>2</QuestionIndex>
-		<Situation>Draw</Situation>
-		<QuestionText>잠깐, 이번 턴에는 카드를 뽑으며 숨을 고를 셈인가?</QuestionText>
-		<TruthText>정확히 봤군. 이번 라운드는 카드를 한 장 드로우하며 템포를 조절하겠다.</TruthText>
-		<LieText>아니, 지금은 보 카드로 공격에 나설 생각이다.</LieText>
-		<EasterEggText>패를 모으는 타이밍과 공격하는 타이밍, 그것이 승부의 핵심이지.</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>13</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>3</QuestionIndex>
-		<Situation>Rock</Situation>
-		<QuestionText>피하지 말고 정면 승부로 부딪쳐 보자!</QuestionText>
-		<TruthText>바라던 바다! 정면에서 바위 카드로 힘껏 맞붙어 주지!</TruthText>
-		<LieText>정면 승부라… 그렇다면 가위 카드로 날카롭게 베어 넘기겠다!</LieText>
-		<EasterEggText>최고의 수읽기 대결이군. 후회 없는 한 수를 내봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>14</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>3</QuestionIndex>
-		<Situation>Scissors</Situation>
-		<QuestionText>피하지 말고 정면 승부로 부딪쳐 보자!</QuestionText>
-		<TruthText>좋다! 내 선택은 가위 카드다. 정정당당하게 승부를 겨루자!</TruthText>
-		<LieText>좋다! 이번에는 보 카드를 펼쳐서 네 공격을 막아내겠다!</LieText>
-		<EasterEggText>최고의 수읽기 대결이군. 후회 없는 한 수를 내봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>15</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>3</QuestionIndex>
-		<Situation>Paper</Situation>
-		<QuestionText>피하지 말고 정면 승부로 부딪쳐 보자!</QuestionText>
-		<TruthText>피할 생각 없다! 보 카드로 너의 정면 돌파를 완벽히 제압하겠다!</TruthText>
-		<LieText>미안하지만 이번 턴에는 카드를 한 장 드로우하며 다음 기회를 노리겠다.</LieText>
-		<EasterEggText>최고의 수읽기 대결이군. 후회 없는 한 수를 내봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
-	</Row>
-	<Row>
-		<Id>16</Id>
-		<CharacterId>102</CharacterId>
-		<QuestionIndex>3</QuestionIndex>
-		<Situation>Draw</Situation>
-		<QuestionText>피하지 말고 정면 승부로 부딪쳐 보자!</QuestionText>
-		<TruthText>도발에는 넘어가지 않는다. 이번에는 침착하게 카드를 드로우하겠다.</TruthText>
-		<LieText>좋다, 그렇다면 정면에서 바위 카드로 승부를 내주마!</LieText>
-		<EasterEggText>최고의 수읽기 대결이군. 후회 없는 한 수를 내봐라!</EasterEggText>
-		<TruthProb>0.6</TruthProb>
-		<LieProb>0.38</LieProb>
-		<EasterEggProb>0.02</EasterEggProb>
+		<Id>1004</Id>
+		<DevNote>[데모 듀얼리스트] 유도신문 질문 4</DevNote>
+		<QuestionStringId>910004</QuestionStringId>
+		<AnswerStringIds>910261, 910262, 910263, 910264</AnswerStringIds>
+		<LieStringIds>910271, 910272, 910273, 910274</LieStringIds>
+		<EasterEggStringId>910279</EasterEggStringId>
+		<AnswerProp>0.6, 0.38, 0.02</AnswerProp>
 	</Row>
 </QuestionTable>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <BattleTable>
 	<Row>
 		<Id>1001</Id>
@@ -14,6 +14,7 @@
 		<WinIllust>-1</WinIllust>
 		<PONValues>0.35, 0.45, 0.65</PONValues>
 		<EliteValues>0.65, 0.55, 0.35</EliteValues>
+		<QuestionIds>1001, 1002, 1003, 1004</QuestionIds>
 	</Row>
 	<Row>
 		<Id>1002</Id>
@@ -29,6 +30,7 @@
 		<WinIllust>-1</WinIllust>
 		<PONValues>0.35, 0.45, 0.65</PONValues>
 		<EliteValues>0.65, 0.55, 0.35</EliteValues>
+		<QuestionIds>1001, 1002, 1003, 1004</QuestionIds>
 	</Row>
 	<Row>
 		<Id>1003</Id>
@@ -44,6 +46,7 @@
 		<WinIllust>-1</WinIllust>
 		<PONValues>0.35, 0.45, 0.65</PONValues>
 		<EliteValues>0.65, 0.55, 0.35</EliteValues>
+		<QuestionIds>1001, 1002, 1003, 1004</QuestionIds>
 	</Row>
 	<Row>
 		<Id>1004</Id>
@@ -59,5 +62,6 @@
 		<WinIllust>-1</WinIllust>
 		<PONValues>0.35, 0.45, 0.65</PONValues>
 		<EliteValues>0.65, 0.55, 0.35</EliteValues>
+		<QuestionIds>1001, 1002, 1003, 1004</QuestionIds>
 	</Row>
 </BattleTable>

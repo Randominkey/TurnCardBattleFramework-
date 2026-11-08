@@ -68,6 +68,7 @@ namespace Demo.Editor
                     string ponValues = row.SelectSingleNode("PONValues")?.InnerText ?? "0.35, 0.45, 0.65";
                     string eliteValues = row.SelectSingleNode("EliteValues")?.InnerText ?? "0.65, 0.55, 0.35";
                     string bgmName = row.SelectSingleNode("BgmName")?.InnerText ?? "BGM_B_Battle_1";
+                    string questionIds = row.SelectSingleNode("QuestionIds")?.InnerText ?? "1001, 1002, 1003, 1004";
 
                     XmlElement newRow = dstDoc.CreateElement("Row");
                     AppendElem(dstDoc, newRow, "Id", id);
@@ -83,6 +84,7 @@ namespace Demo.Editor
                     AppendElem(dstDoc, newRow, "WinIllust", "-1");
                     AppendElem(dstDoc, newRow, "PONValues", ponValues);
                     AppendElem(dstDoc, newRow, "EliteValues", eliteValues);
+                    AppendElem(dstDoc, newRow, "QuestionIds", "1001, 1002, 1003, 1004");
 
                     root.AppendChild(newRow);
                 }
