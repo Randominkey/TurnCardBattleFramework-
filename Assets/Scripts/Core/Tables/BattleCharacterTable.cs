@@ -24,6 +24,16 @@ namespace Core.Table
         private CharacterKeyName? cachedKeyName;
         public CharacterKeyName KeyName => cachedKeyName ??= ParseKeyName();
 
+        /// <summary>
+        /// 디버그/기획자 테스트용: 특정 체인 ID를 주입한 얕은 복제본을 생성합니다. (원본 테이블 데이터 보존)
+        /// </summary>
+        public BattleCharacterTableRow CloneWithChain(int overrideChainId)
+        {
+            var clone = (BattleCharacterTableRow)MemberwiseClone();
+            clone.chainId = overrideChainId;
+            return clone;
+        }
+
         private CharacterKeyName ParseKeyName()
         {
             // 1. XML에 명시적으로 정의되어 있다면 우선 사용

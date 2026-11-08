@@ -131,6 +131,13 @@ namespace Core.Flow
             var pData = TableManager.Instance.GetTable<BattleCharacterTable>().Get(battleTable.storyPlayerCharacterId);
             var eData = TableManager.Instance.GetTable<BattleCharacterTable>().Get(battleTable.enemyCharacterId);
 
+            if (Core.Utils.DevBootstrapper.Instance != null && Core.Utils.DevBootstrapper.Instance.DisableChainSystem)
+            {
+                Debug.LogWarning("[DevBootstrapper] ★ [기획자 확인 모드] 체인 시스템 전체 강제 비활성화: 양쪽 캐릭터의 체인(ChainId)이 해제되어 순수 가위바위보 및 스페셜 스킬만으로 대전합니다.");
+                pData = pData?.CloneWithChain(-1);
+                eData = eData?.CloneWithChain(-1);
+            }
+
             battleModel = new BattleModel(battleTable, pData, eData);
             chainHandler = new BattleChainActionHandler(battleModel, battleView, this, () => {
                 if (CheckBattleEnd()) ChangePhase(BattlePhase.Result);

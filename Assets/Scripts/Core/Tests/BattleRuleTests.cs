@@ -79,6 +79,13 @@ namespace Core.Tests
             AssertEqual(true, berserk.CheckSuccess(playerContext, 1), "Berserk on Win (winnerIndex=1) should succeed");
             AssertEqual(false, berserk.CheckSuccess(playerContext, 2), "Berserk on Defeat (winnerIndex=2) should fail");
 
+            // --- 4. 기획자 확인용 체인 비활성화 모드 검증 ---
+            var originalCharData = new BattleCharacterTableRow { id = 102, maxHp = 100, chainId = 1002 };
+            var disabledCharData = originalCharData.CloneWithChain(-1);
+            AssertEqual(1002, originalCharData.chainId, "Original character data chainId should remain 1002");
+            AssertEqual(-1, disabledCharData.chainId, "Cloned character data chainId should be -1");
+            AssertEqual(100f, disabledCharData.maxHp, "Cloned character data maxHp should be preserved");
+
             bool allPassed = passCount == totalCount;
             if (allPassed)
             {

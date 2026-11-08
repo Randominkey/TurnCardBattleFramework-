@@ -113,7 +113,15 @@ namespace Core.View
         /// </summary>
         private void LoadChainUI(string actionType, BattleCharacterModel model)
         {
-            if (chainUIRoot == null || string.IsNullOrEmpty(actionType)) return;
+            if (chainUIRoot == null) return;
+
+            if (string.IsNullOrEmpty(actionType))
+            {
+                chainUIRoot.gameObject.SetActive(false);
+                return;
+            }
+
+            chainUIRoot.gameObject.SetActive(true);
 
             string primaryKey = $"ChainUI/{actionType}";
             string fallbackKey = $"Demo/ChainUI/{actionType}";

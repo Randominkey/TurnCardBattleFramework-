@@ -29,8 +29,12 @@ namespace Core.Utils
         [Tooltip("에디터 한정: 특정 환경 요소를 강제로 고정하여 테스트합니다. (None이면 랜덤 추첨)")]
         [SerializeField] private EnvironmentType environmentOverride = EnvironmentType.None;
 
+        [Tooltip("기획자 확인용: 체인 시스템 전체를 비활성화합니다. 양쪽 모두 체인이 없는 상태로 가위바위보와 스페셜 스킬만으로 전투합니다.")]
+        [SerializeField] private bool disableChainSystem = false;
+
         public bool HideEnemyHand => hideEnemyHand;
         public EnvironmentType EnvironmentOverride => environmentOverride;
+        public bool DisableChainSystem => disableChainSystem;
 
         private void Awake()
         {
